@@ -1,0 +1,10 @@
+#!/bin/bash
+
+$MAVEN_HOME/mvn spotless:apply
+
+for file in $(git diff --name-only --cached)
+do
+  if [ -f $file ]; then
+    git add $file
+  fi
+done
