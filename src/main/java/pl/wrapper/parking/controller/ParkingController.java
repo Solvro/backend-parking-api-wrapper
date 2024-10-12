@@ -11,12 +11,10 @@ import pl.wrapper.parking.utils.DataFetcher;
 @RequiredArgsConstructor
 public class ParkingController {
 
-
     private final DataFetcher dataFetcher;
 
-
     @GetMapping("/fetch")
-    public void fetchData(){
+    public void fetchData() {
         System.out.println(dataFetcher.fetchParkingPlaces(1).subscribe(System.out::println));
     }
 }
