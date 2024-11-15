@@ -16,7 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
-    private final static long CACHE_TTL_MS = 300000L;
+    private final static long CACHE_TTL_MS = 180000L;
     private final PwrApiCaller pwrApiCaller;
 
 
@@ -32,6 +32,6 @@ class PwrApiServerCallerImpl implements PwrApiServerCaller {
     @CacheEvict("parkingListCache")
     @Scheduled(fixedDelay = CACHE_TTL_MS)
     public void flushCache() {
-        log.info("Cache flushed at. New data can be fetched.");
+        log.info("Cache flushed. New data can be fetched.");
     }
 }
