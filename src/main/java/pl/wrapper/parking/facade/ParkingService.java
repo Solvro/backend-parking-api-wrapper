@@ -1,3 +1,3 @@
-package pl.wrapper.parking.service;
+package pl.wrapper.parking.facade;
 
 public interface ParkingService {}
