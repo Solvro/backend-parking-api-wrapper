@@ -3,6 +3,7 @@ package pl.wrapper.parking.result;
 
 import lombok.SneakyThrows;
 
+
 public record FailureResult<T,D extends Exception>(D error) implements Result<T> {
 
     public static <M> FailureResult<M,? extends Exception> failureResult(Result<?> other) {

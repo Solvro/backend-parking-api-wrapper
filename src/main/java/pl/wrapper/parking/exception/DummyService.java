@@ -7,7 +7,6 @@ import pl.wrapper.parking.result.SuccessResult;
 
 import static pl.wrapper.parking.result.FailureResult.failureResult;
 
-
 @Service
 public class DummyService {
 

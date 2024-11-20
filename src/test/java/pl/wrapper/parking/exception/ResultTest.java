@@ -6,7 +6,6 @@ import pl.wrapper.parking.result.Result;
 import pl.wrapper.parking.result.SuccessResult;
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class ResultTest {
 
     @Test

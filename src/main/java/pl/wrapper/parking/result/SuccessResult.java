@@ -1,5 +1,6 @@
 package pl.wrapper.parking.result;
 
+
 public record SuccessResult<T>(T result) implements Result<T>{
 
     @Override
