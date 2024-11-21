@@ -4,8 +4,5 @@ import org.springframework.http.ResponseEntity;
 
 
 public interface GlobalExceptionHandler {
-    ResponseEntity<String> handleGeneralException(Exception e);
-    ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException e);
-    ResponseEntity<String> handleNullPointerException(NullPointerException e);
-    ResponseEntity<String> handleIndexOutOfBoundsException(IndexOutOfBoundsException e);
+    <T extends Exception> ResponseEntity<String> handleGeneralExceptions(T e);
 }
