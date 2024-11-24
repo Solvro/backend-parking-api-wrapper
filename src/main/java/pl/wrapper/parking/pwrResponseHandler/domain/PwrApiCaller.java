@@ -62,7 +62,7 @@ final class PwrApiCaller {
                     .totalSpots(Integer.parseInt(currentParking.getOrDefault("places", "0")))
                     .address(
                             new Address(
-                                    currentParking.getOrDefault("address", "unknown"),
+                                    currentParking.getOrDefault("address", "unknown").strip(),
                                     Float.parseFloat(currentParking.get("geo_lat")),
                                     Float.parseFloat(currentParking.get("geo_lan"))
                             )
