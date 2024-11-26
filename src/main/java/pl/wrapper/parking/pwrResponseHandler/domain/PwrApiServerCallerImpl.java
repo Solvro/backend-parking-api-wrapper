@@ -24,6 +24,7 @@ class PwrApiServerCallerImpl implements PwrApiServerCaller {
     @Cacheable("parkingListCache")
     public List<ParkingResponse> fetchData() {
         log.info("Fetching new data from Pwr api.");
+        //what will happen here if Mono.error is blocked? If throws, add handling for it; if nulls the list, add handling for it; etc.
         List<ParkingResponse> parsedData = pwrApiCaller.fetchParkingPlaces().block();
         log.info("Fetch successful. Cache updated.");
         return parsedData;
