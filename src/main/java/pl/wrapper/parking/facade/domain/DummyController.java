@@ -18,7 +18,7 @@ public class DummyController extends HandleResult {
     @GetMapping("/id/{id}")
     public ResponseEntity<String> getParkingOccupancyByParkingIdValid(HttpServletRequest request,
                                                                       @PathVariable("id") Long id) {
-        boolean willSucceed = false;
+        boolean willSucceed = true;
         Result<Long> result = dummyService.dummyGetParkingBySymbol(id, willSucceed);
         return handleResult(result, HttpStatus.OK, request);
     }
