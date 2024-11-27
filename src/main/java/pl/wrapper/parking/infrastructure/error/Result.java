@@ -1,5 +1,6 @@
 package pl.wrapper.parking.infrastructure.error;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import pl.wrapper.parking.infrastructure.exception.InvalidCallException;
 
 public interface Result<T> {
@@ -7,23 +8,14 @@ public interface Result<T> {
     static <T> Failure<T> failure(Error error) {return new Failure<>(error); }
 
     boolean isSuccess();
-    boolean isFailure();
     T getData();
     Error getError();
 
 
-    public static final class Success<T> implements Result<T> {
-        private final T data;
-        private Success(T data) { this.data = data;}
-
+    record Success<T>(T data) implements Result<T> {
         @Override
         public boolean isSuccess() {
             return true;
-        }
-
-        @Override
-        public boolean isFailure() {
-            return false;
         }
 
         @Override
@@ -37,18 +29,10 @@ public interface Result<T> {
         }
     }
 
-    public static final class Failure<T> implements Result<T> {
-        private final Error error;
-        private Failure(Error error) { this.error = error;}
-
+    record Failure<T>(Error error) implements Result<T> {
         @Override
         public boolean isSuccess() {
             return false;
-        }
-
-        @Override
-        public boolean isFailure() {
-            return true;
         }
 
         @Override

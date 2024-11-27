@@ -1,4 +1,4 @@
-package pl.wrapper.parking.pwrResponseHandler.exception;
+package pl.wrapper.parking.infrastructure.exception;
 
 public class PwrApiNotRespondingException extends RuntimeException {
     public PwrApiNotRespondingException(String message) {

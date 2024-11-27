@@ -1,46 +1,42 @@
 package pl.wrapper.parking.facade.domain;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import pl.wrapper.parking.infrastructure.error.ParkingError;
-import pl.wrapper.parking.infrastructure.error.Result;
+import pl.wrapper.parking.infrastructure.error.*;
+import pl.wrapper.parking.infrastructure.error.Error;
 
 @RestController
 @RequiredArgsConstructor
-public class DummyController {
+public class DummyController extends HandleResult {
     private final DummyService dummyService;
 
-    @GetMapping("/symbol/{symbol}")
-    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(@PathVariable("symbol") String symbol) {
-        boolean willSucceed = true;
-        return handleResult(dummyService.dummyGetParkingBySymbol(symbol, willSucceed), HttpStatus.OK);
+    @GetMapping("/id/{id}")
+    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(HttpServletRequest request,
+                                                                      @PathVariable("id") Long id) {
+        boolean willSucceed = false;
+        Result<Long> result = dummyService.dummyGetParkingBySymbol(id, willSucceed);
+        return handleResult(result, HttpStatus.OK, request);
     }
 
 
-    //-------
-    private static final ObjectWriter ow = new ObjectMapper()
-            .enable(SerializationFeature.INDENT_OUTPUT)
-            .registerModule(new JavaTimeModule())
-            .writerWithDefaultPrettyPrinter();
-
-    //ErrorWrapper -> @JsonProperty error -> body...
-    //$body.error -> body
-    @SneakyThrows
-    private static ResponseEntity<String> handleResult(Result<?> toHandle, HttpStatus onSuccess) {
-        if(toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle), onSuccess);
-        return switch (toHandle.getError()){
-            case ParkingError.ParkingNotFoundBySymbol e -> new ResponseEntity<>("Custom error message here", HttpStatus.NOT_FOUND);
-            //other cases here
+    protected HttpStatus getStatusByError(Error error){
+        return switch (error){
+            case ParkingError.ParkingNotFoundBySymbol e -> HttpStatus.BAD_REQUEST;
+            case ParkingError.ParkingNotFoundById e -> HttpStatus.BAD_REQUEST;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 
+    protected String getMessageByError(Error error){
+        return switch (error){
+            case ParkingError.ParkingNotFoundBySymbol e -> "Wrong Parking Symbol: " + e.symbol();
+            case ParkingError.ParkingNotFoundById e -> "Wrong Parking ID: " + e.id();
+            default -> "An error has occured";
+        };
+    }
 }

@@ -7,7 +7,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import pl.wrapper.parking.pwrResponseHandler.exception.PwrApiNotRespondingException;
+import pl.wrapper.parking.infrastructure.exception.PwrApiNotRespondingException;
 import reactor.core.publisher.Mono;
 
 @Configuration
@@ -30,7 +30,9 @@ class WebClientConfig {
     }
 
     private static Mono<ClientResponse> responseFilter(ClientResponse response) {
-        if(response.statusCode().isError()) return response.bodyToMono(String.class).flatMap(body -> Mono.error(new PwrApiNotRespondingException(body)));
+        if(response.statusCode().isError()) return response.bodyToMono(String.class).flatMap(
+                body -> Mono.error(new PwrApiNotRespondingException(body)));
+
         return Mono.just(response);
     }
 }
