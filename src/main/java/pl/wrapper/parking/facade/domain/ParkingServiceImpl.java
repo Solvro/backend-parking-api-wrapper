@@ -2,6 +2,7 @@ package pl.wrapper.parking.facade.domain;
 
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
+import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Mono;
@@ -9,7 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller) implements ParkingService {
+record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient) implements ParkingService {
     //1. endpointy:
     // - endpoint dla każdego parametru, zwraca jeden, kilka, lub nic
     // - research, closest address
