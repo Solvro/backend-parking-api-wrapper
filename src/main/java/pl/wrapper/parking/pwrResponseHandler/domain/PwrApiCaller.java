@@ -15,7 +15,7 @@ import java.util.*;
 
 @Component
 @RequiredArgsConstructor
-final class PwrApiCaller {
+public final class PwrApiCaller {
 
 
     private final WebClient webClient;

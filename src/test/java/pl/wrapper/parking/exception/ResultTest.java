@@ -2,22 +2,27 @@ package pl.wrapper.parking.exception;
 
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
+import pl.wrapper.parking.facade.domain.DummyController;
+import pl.wrapper.parking.facade.domain.DummyService;
+import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
+import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
+import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
+import reactor.core.publisher.Mono;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@WebMvcTest(DummyController.class)
+@Import({DummyService.class})
 class ResultTest {
     @Autowired
     private MockMvc mockMvc;
-
 
     @Test
     void shouldReturnDummyBody() throws Exception {
@@ -33,6 +38,18 @@ class ResultTest {
         assertEquals(status,OkStatus); //check status
         assertEquals(responseBody, String.valueOf(id));//check response body
     }
-}
 
-//WebMvcTest mockMvc - testRestTemplate -> how to check error body and how to check if outcome was 200-300
+    @Test
+    void shouldReturnException() {
+        Exception provided = new ClassCastException("simulated");
+
+        PwrApiCaller apiCaller = Mockito.mock(PwrApiCaller.class);
+        Mockito.when(apiCaller.fetchParkingPlaces()).thenReturn(Mono.error(provided)); //simulate response
+
+        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller);
+        Exception e = assertThrows(provided.getClass(), pwrApiServerCaller::fetchData);//check error class
+
+        assertEquals(provided.getMessage(), e.getMessage()); //check error message
+    }
+
+}

@@ -15,6 +15,9 @@ public abstract class HandleResult {
             .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter();
 
+    public record Pair<T,D>(T first, D second) {}
+
+
     @SneakyThrows
     protected final ResponseEntity<String> handleResult(Result<?> toHandle,
                                                 HttpStatus onSuccess,
@@ -24,15 +27,15 @@ public abstract class HandleResult {
 
         String uri = request.getRequestURI();
         Error error = toHandle.getError();
-        String errorMessage = getMessageByError(error);
+
+        Pair<HttpStatus, String> info = getInfoByError(error);
+        String errorMessage = info.second;
+        HttpStatus status = info.first;
 
         ErrorWrapper errorWrapper = new ErrorWrapper(errorMessage, onSuccess, uri);
 
-        HttpStatus status = getStatusByError(error);
         return new ResponseEntity<>(ow.writeValueAsString(errorWrapper),status);
     }
 
-    protected abstract HttpStatus getStatusByError(Error error);
-
-    protected abstract String getMessageByError(Error error);
+    protected abstract Pair<HttpStatus, String> getInfoByError(Error error);
 }

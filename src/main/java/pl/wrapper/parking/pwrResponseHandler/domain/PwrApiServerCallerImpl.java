@@ -14,7 +14,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-class PwrApiServerCallerImpl implements PwrApiServerCaller {
+public class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
     private final static long CACHE_TTL_MS = 180000L;
     private final PwrApiCaller pwrApiCaller;

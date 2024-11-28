@@ -1,5 +1,6 @@
 package pl.wrapper.parking.facade.domain;
 
+import ch.qos.logback.core.joran.sanity.Pair;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,19 +25,13 @@ public class DummyController extends HandleResult {
     }
 
 
-    protected HttpStatus getStatusByError(Error error){
+    @Override
+    protected Pair<HttpStatus, String> getInfoByError(Error error) {
         return switch (error){
-            case ParkingError.ParkingNotFoundBySymbol e -> HttpStatus.BAD_REQUEST;
-            case ParkingError.ParkingNotFoundById e -> HttpStatus.BAD_REQUEST;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
-    }
-
-    protected String getMessageByError(Error error){
-        return switch (error){
-            case ParkingError.ParkingNotFoundBySymbol e -> "Wrong Parking Symbol: " + e.symbol();
-            case ParkingError.ParkingNotFoundById e -> "Wrong Parking ID: " + e.id();
-            default -> "An error has occured";
+            case ParkingError.ParkingNotFoundBySymbol e ->
+                    new Pair<>(HttpStatus.BAD_REQUEST, "Wrong Parking Symbol: " + e.symbol());
+            case ParkingError.ParkingNotFoundById e ->
+                    new Pair<>(HttpStatus.BAD_REQUEST, "Wrong Parking ID: " + e.id());
         };
     }
 }
