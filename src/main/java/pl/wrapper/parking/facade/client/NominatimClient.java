@@ -4,13 +4,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
 
 @HttpExchange("${maps.api.url}")
 public interface NominatimClient {
 
     @GetExchange("/search")
-    List<NominatimLocation> search(@RequestParam("q") String query,
+    Flux<NominatimLocation> search(@RequestParam("q") String query,
                                    @RequestParam("format") String format);
 }
