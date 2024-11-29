@@ -8,14 +8,14 @@ import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-public abstract class HandleResult {
+public class HandleResult {
     private static final ObjectWriter ow = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter();
 
     @SneakyThrows
-    protected final ResponseEntity<String> handleResult(
+    public static ResponseEntity<String> handleResult(
             Result<?> toHandle, HttpStatus onSuccess, String uri) {
         if (toHandle.isSuccess())
             return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);

@@ -8,9 +8,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.infrastructure.error.*;
 
+import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
+
 @RestController
 @RequiredArgsConstructor
-public class DummyController extends HandleResult {
+public class DummyController {
     private final DummyService dummyService;
 
     @GetMapping("/id/{id}")
