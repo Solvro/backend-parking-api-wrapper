@@ -8,7 +8,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.wrapper.parking.facade.domain.DummyController;
@@ -20,7 +19,6 @@ import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
 import reactor.core.publisher.Mono;
 
 @WebMvcTest(DummyController.class)
-@Import({DummyService.class})
 class ResultTest {
     @Autowired
     private MockMvc mockMvc;

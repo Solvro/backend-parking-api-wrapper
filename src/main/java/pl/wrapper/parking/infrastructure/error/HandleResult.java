@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 public abstract class HandleResult {
-    private final ObjectWriter ow = new ObjectMapper()
+    private static final ObjectWriter ow = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter();
@@ -17,12 +17,18 @@ public abstract class HandleResult {
     @SneakyThrows
     protected final ResponseEntity<String> handleResult(
             Result<?> toHandle, HttpStatus onSuccess, String uri) {
-        if (toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
-
+        if (toHandle.isSuccess())
+            return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
         Error error = toHandle.getError();
         ErrorWrapper errorWrapper = getInfoByError(error,uri,onSuccess);
-        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.Occuredstatus());
+        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occuredstatus());
     }
 
-    protected abstract ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess);
-}
+    protected final ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
+        return switch (error) {
+            case ParkingError.ParkingNotFoundBySymbol e -> new ErrorWrapper(
+                    "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.BAD_REQUEST);
+            case ParkingError.ParkingNotFoundById e -> new ErrorWrapper(
+                    "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.BAD_REQUEST);
+        };
+    }}
