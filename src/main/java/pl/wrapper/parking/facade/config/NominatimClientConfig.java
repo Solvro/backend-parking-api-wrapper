@@ -1,5 +1,6 @@
 package pl.wrapper.parking.facade.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
@@ -13,9 +14,13 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class NominatimClientConfig {
 
+    @Value("${maps.api.url}")
+    private String mapsUrl;
+
     @Bean
     public NominatimClient nominatimClient() {
         WebClient webClient = WebClient.builder()
+                .baseUrl(mapsUrl)
                 .defaultStatusHandler(HttpStatusCode::isError,
                         resp -> resp.bodyToMono(String.class)
                                 .flatMap(body -> Mono.error(new NominatimClientException(body))))

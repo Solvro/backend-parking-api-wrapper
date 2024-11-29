@@ -6,10 +6,10 @@ import org.springframework.web.service.annotation.HttpExchange;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import reactor.core.publisher.Flux;
 
-@HttpExchange("${maps.api.url}")
+@HttpExchange
 public interface NominatimClient {
 
     @GetExchange("/search")
     Flux<NominatimLocation> search(@RequestParam("q") String query,
-                                   @RequestParam("format") String format);
+                                   @RequestParam(value = "format", defaultValue = "jsonv2") String format);
 }
