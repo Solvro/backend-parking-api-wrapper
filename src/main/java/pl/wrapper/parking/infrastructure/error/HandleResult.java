@@ -15,15 +15,12 @@ public abstract class HandleResult {
             .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter();
 
-    public record Pair<T,D>(T first, D second) {}
-
+    public record Pair<T, D>(T first, D second) {}
 
     @SneakyThrows
-    protected final ResponseEntity<String> handleResult(Result<?> toHandle,
-                                                HttpStatus onSuccess,
-                                                HttpServletRequest request) {
-        if(toHandle.isSuccess())
-            return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
+    protected final ResponseEntity<String> handleResult(
+            Result<?> toHandle, HttpStatus onSuccess, HttpServletRequest request) {
+        if (toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
 
         String uri = request.getRequestURI();
         Error error = toHandle.getError();
@@ -34,7 +31,7 @@ public abstract class HandleResult {
 
         ErrorWrapper errorWrapper = new ErrorWrapper(errorMessage, onSuccess, uri);
 
-        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper),status);
+        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), status);
     }
 
     protected abstract Pair<HttpStatus, String> getInfoByError(Error error);

@@ -1,5 +1,7 @@
 package pl.wrapper.parking.exception;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -15,33 +17,37 @@ import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
 import reactor.core.publisher.Mono;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-
-
+@WebMvcTest(DummyController.class)
+@Import({DummyService.class})
 class ResultTest {
+    @Autowired
+    private MockMvc mockMvc;
 
     @Test
-    void valid() {
-        String success = "success!";
-        Result<String> result = new SuccessResult<>(success);
+    void shouldReturnDummyBody() throws Exception {
+        Long id = 4L;
+        MvcResult mvcResult = mockMvc.perform(get("/id/{id}", id)) // add url and variables
+                .andReturn();
 
-        assertEquals(result.getValue(), success);
+        String responseBody = mvcResult.getResponse().getContentAsString(); // get response body
 
-        assertTrue(result.isSuccess());
+        Integer status = mvcResult.getResponse().getStatus(); // get response status
+
+        Integer OkStatus = 200;
+        assertEquals(status, OkStatus); // check status
+        assertEquals(responseBody, String.valueOf(id)); // check response body
     }
 
     @Test
-    void invalid() {
-        IllegalArgumentException exception = new IllegalArgumentException();
+    void shouldReturnException() {
+        Exception provided = new ClassCastException("simulated");
 
-        Result<Integer> result1 = new FailureResult<>(exception);
-        Result<String> result2 = new FailureResult<>(exception);
+        PwrApiCaller apiCaller = Mockito.mock(PwrApiCaller.class);
+        Mockito.when(apiCaller.fetchParkingPlaces()).thenReturn(Mono.error(provided)); // simulate response
 
-        assertThrowsExactly(IllegalArgumentException.class, result1::getValue);
-        assertThrowsExactly(IllegalArgumentException.class, result2::getValue);
+        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller);
+        Exception e = assertThrows(provided.getClass(), pwrApiServerCaller::fetchData); // check error class
 
-        assertFalse(result1.isSuccess());
-        assertFalse(result2.isSuccess());
+        assertEquals(provided.getMessage(), e.getMessage()); // check error message
     }
 }

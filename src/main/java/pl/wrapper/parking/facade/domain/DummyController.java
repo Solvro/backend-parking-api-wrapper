@@ -17,21 +17,20 @@ public class DummyController extends HandleResult {
     private final DummyService dummyService;
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(HttpServletRequest request,
-                                                                      @PathVariable("id") Long id) {
+    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(
+            HttpServletRequest request, @PathVariable("id") Long id) {
         boolean willSucceed = true;
         Result<Long> result = dummyService.dummyGetParkingBySymbol(id, willSucceed);
         return handleResult(result, HttpStatus.OK, request);
     }
 
-
     @Override
     protected Pair<HttpStatus, String> getInfoByError(Error error) {
-        return switch (error){
-            case ParkingError.ParkingNotFoundBySymbol e ->
-                    new Pair<>(HttpStatus.BAD_REQUEST, "Wrong Parking Symbol: " + e.symbol());
-            case ParkingError.ParkingNotFoundById e ->
-                    new Pair<>(HttpStatus.BAD_REQUEST, "Wrong Parking ID: " + e.id());
+        return switch (error) {
+            case ParkingError.ParkingNotFoundBySymbol e -> new Pair<>(
+                    HttpStatus.BAD_REQUEST, "Wrong Parking Symbol: " + e.symbol());
+            case ParkingError.ParkingNotFoundById e -> new Pair<>(
+                    HttpStatus.BAD_REQUEST, "Wrong Parking ID: " + e.id());
         };
     }
 }
