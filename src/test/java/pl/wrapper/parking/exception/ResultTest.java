@@ -7,11 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.wrapper.parking.facade.domain.DummyController;
 import pl.wrapper.parking.facade.domain.DummyService;
+import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
@@ -23,9 +25,15 @@ class ResultTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @MockBean
+    private DummyService dummyService;
+
     @Test
     void shouldReturnDummyBody() throws Exception {
         Long id = 4L;
+
+        Mockito.when(dummyService.dummyGetParkingBySymbol(id,true)).thenReturn(Result.success(id));
+
         MvcResult mvcResult = mockMvc.perform(get("/id/{id}", id)) // add url and variables
                 .andReturn();
 

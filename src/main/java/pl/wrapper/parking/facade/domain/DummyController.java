@@ -1,6 +1,5 @@
 package pl.wrapper.parking.facade.domain;
 
-import ch.qos.logback.core.joran.sanity.Pair;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,20 +16,19 @@ public class DummyController extends HandleResult {
     private final DummyService dummyService;
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(
-            HttpServletRequest request, @PathVariable("id") Long id) {
+    public ResponseEntity<String> getParkingOccupancyByParkingIdValid(@PathVariable("id") Long id) {
         boolean willSucceed = true;
         Result<Long> result = dummyService.dummyGetParkingBySymbol(id, willSucceed);
-        return handleResult(result, HttpStatus.OK, request);
+        return handleResult(result, HttpStatus.OK, "/id/" + id);
     }
 
     @Override
-    protected Pair<HttpStatus, String> getInfoByError(Error error) {
+    protected ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
         return switch (error) {
-            case ParkingError.ParkingNotFoundBySymbol e -> new Pair<>(
-                    HttpStatus.BAD_REQUEST, "Wrong Parking Symbol: " + e.symbol());
-            case ParkingError.ParkingNotFoundById e -> new Pair<>(
-                    HttpStatus.BAD_REQUEST, "Wrong Parking ID: " + e.id());
+            case ParkingError.ParkingNotFoundBySymbol e -> new ErrorWrapper(
+                    "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.BAD_REQUEST);
+            case ParkingError.ParkingNotFoundById e -> new ErrorWrapper(
+                    "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.BAD_REQUEST);
         };
     }
 }

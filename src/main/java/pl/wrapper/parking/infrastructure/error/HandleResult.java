@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,24 +14,15 @@ public abstract class HandleResult {
             .registerModule(new JavaTimeModule())
             .writerWithDefaultPrettyPrinter();
 
-    public record Pair<T, D>(T first, D second) {}
-
     @SneakyThrows
     protected final ResponseEntity<String> handleResult(
-            Result<?> toHandle, HttpStatus onSuccess, HttpServletRequest request) {
+            Result<?> toHandle, HttpStatus onSuccess, String uri) {
         if (toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
 
-        String uri = request.getRequestURI();
         Error error = toHandle.getError();
-
-        Pair<HttpStatus, String> info = getInfoByError(error);
-        String errorMessage = info.second;
-        HttpStatus status = info.first;
-
-        ErrorWrapper errorWrapper = new ErrorWrapper(errorMessage, onSuccess, uri);
-
-        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), status);
+        ErrorWrapper errorWrapper = getInfoByError(error,uri,onSuccess);
+        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.Occuredstatus());
     }
 
-    protected abstract Pair<HttpStatus, String> getInfoByError(Error error);
+    protected abstract ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess);
 }
