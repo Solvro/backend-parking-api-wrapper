@@ -24,7 +24,7 @@ public abstract class HandleResult {
         return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occuredstatus());
     }
 
-    protected final ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
+    private static ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
         return switch (error) {
             case ParkingError.ParkingNotFoundBySymbol e -> new ErrorWrapper(
                     "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.BAD_REQUEST);
