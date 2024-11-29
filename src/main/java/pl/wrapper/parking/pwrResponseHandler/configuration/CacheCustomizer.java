@@ -1,10 +1,9 @@
 package pl.wrapper.parking.pwrResponseHandler.configuration;
 
+import java.util.Collections;
 import org.springframework.boot.autoconfigure.cache.CacheManagerCustomizer;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
 
 @Component
 class CacheCustomizer implements CacheManagerCustomizer<ConcurrentMapCacheManager> {

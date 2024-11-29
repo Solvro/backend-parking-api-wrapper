@@ -30,9 +30,9 @@ class WebClientConfig {
     }
 
     private static Mono<ClientResponse> responseFilter(ClientResponse response) {
-        if(response.statusCode().isError()) return response.bodyToMono(String.class).flatMap(
-                body -> Mono.error(new PwrApiNotRespondingException(body)));
-
+        if (response.statusCode().isError())
+            return response.bodyToMono(String.class)
+                    .flatMap(body -> Mono.error(new PwrApiNotRespondingException(body)));
         return Mono.just(response);
     }
 }

@@ -18,38 +18,30 @@ import reactor.core.publisher.Mono;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-@WebMvcTest(DummyController.class)
-@Import({DummyService.class})
+
 class ResultTest {
-    @Autowired
-    private MockMvc mockMvc;
 
     @Test
-    void shouldReturnDummyBody() throws Exception {
-        Long id = 4L;
-        MvcResult mvcResult = mockMvc.perform(get("/id/{id}",id))//add url and variables
-                .andReturn();
+    void valid() {
+        String success = "success!";
+        Result<String> result = new SuccessResult<>(success);
 
-        String responseBody = mvcResult.getResponse().getContentAsString();// get response body
+        assertEquals(result.getValue(), success);
 
-        Integer status = mvcResult.getResponse().getStatus();//get response status
-
-        Integer OkStatus = 200;
-        assertEquals(status,OkStatus); //check status
-        assertEquals(responseBody, String.valueOf(id));//check response body
+        assertTrue(result.isSuccess());
     }
 
     @Test
-    void shouldReturnException() {
-        Exception provided = new ClassCastException("simulated");
+    void invalid() {
+        IllegalArgumentException exception = new IllegalArgumentException();
 
-        PwrApiCaller apiCaller = Mockito.mock(PwrApiCaller.class);
-        Mockito.when(apiCaller.fetchParkingPlaces()).thenReturn(Mono.error(provided)); //simulate response
+        Result<Integer> result1 = new FailureResult<>(exception);
+        Result<String> result2 = new FailureResult<>(exception);
 
-        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller);
-        Exception e = assertThrows(provided.getClass(), pwrApiServerCaller::fetchData);//check error class
+        assertThrowsExactly(IllegalArgumentException.class, result1::getValue);
+        assertThrowsExactly(IllegalArgumentException.class, result2::getValue);
 
-        assertEquals(provided.getMessage(), e.getMessage()); //check error message
+        assertFalse(result1.isSuccess());
+        assertFalse(result2.isSuccess());
     }
-
 }
