@@ -27,8 +27,8 @@ public class HandleResult {
     private static ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
         return switch (error) {
             case ParkingError.ParkingNotFoundBySymbol e -> new ErrorWrapper(
-                    "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.BAD_REQUEST);
+                    "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundById e -> new ErrorWrapper(
-                    "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.BAD_REQUEST);
+                    "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.NOT_FOUND);
         };
     }}
