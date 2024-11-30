@@ -14,7 +14,7 @@ import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
-final class PwrApiCaller {
+public final class PwrApiCaller {
 
     private final WebClient webClient;
 

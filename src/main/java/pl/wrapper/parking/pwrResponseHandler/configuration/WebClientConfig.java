@@ -7,7 +7,7 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
-import pl.wrapper.parking.pwrResponseHandler.exception.PwrApiNotRespondingException;
+import pl.wrapper.parking.infrastructure.exception.PwrApiNotRespondingException;
 import reactor.core.publisher.Mono;
 
 @Configuration

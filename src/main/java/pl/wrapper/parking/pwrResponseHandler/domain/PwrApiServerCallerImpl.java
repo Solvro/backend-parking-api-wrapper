@@ -13,7 +13,7 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-class PwrApiServerCallerImpl implements PwrApiServerCaller {
+public class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
     private static final long CACHE_TTL_MS = 180000L;
     private final PwrApiCaller pwrApiCaller;
