@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-class PwrApiServerCallerImpl implements PwrApiServerCaller {
+public class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
     private final static int CACHE_TTL_MIN = 3;
     private final PwrApiCaller pwrApiCaller;

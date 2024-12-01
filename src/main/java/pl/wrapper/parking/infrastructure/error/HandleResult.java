@@ -21,7 +21,7 @@ public class HandleResult {
             return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
         Error error = toHandle.getError();
         ErrorWrapper errorWrapper = getInfoByError(error,uri,onSuccess);
-        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occuredstatus());
+        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occurredStatus());
     }
 
     private static ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
