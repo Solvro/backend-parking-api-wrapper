@@ -28,7 +28,7 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
         Mono<NominatimLocation> geoLocation = nominatimClient.search(address, "json").next();
         return geoLocation
                 .flatMap(location -> {
-                    log.info("Geocoded address for coordinates: {} {}", location.getLatitude(), location.getLongitude());
+                    log.info("Geocoded address for coordinates: {} {}", location.latitude(), location.longitude());
                     return findClosestParking(location, getAllParkings());
                 })
                 .switchIfEmpty(Mono.defer(() -> {
@@ -38,8 +38,8 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
     }
 
     private Mono<ParkingResponse> findClosestParking(NominatimLocation location, Mono<List<ParkingResponse>> parkingLots) {
-        double lat = location.getLatitude();
-        double lon = location.getLongitude();
+        double lat = location.latitude();
+        double lon = location.longitude();
 
         return parkingLots.flatMap(parkings -> Mono.just(parkings.stream()
                 .min(Comparator.comparingDouble(parking -> haversineDistance(

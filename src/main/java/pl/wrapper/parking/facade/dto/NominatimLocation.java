@@ -1,14 +1,8 @@
 package pl.wrapper.parking.facade.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
 
-@Data
-public class NominatimLocation {
+public record NominatimLocation(@JsonProperty("lat") double latitude,
+                                @JsonProperty("lon") double longitude) {
 
-    @JsonProperty("lat")
-    private double latitude;
-
-    @JsonProperty("lon")
-    private double longitude;
 }

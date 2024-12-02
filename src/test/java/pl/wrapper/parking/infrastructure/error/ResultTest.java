@@ -1,4 +1,4 @@
-package pl.wrapper.parking.exception;
+package pl.wrapper.parking.infrastructure.error;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.wrapper.parking.facade.domain.DummyController;
 import pl.wrapper.parking.facade.domain.DummyService;
-import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
