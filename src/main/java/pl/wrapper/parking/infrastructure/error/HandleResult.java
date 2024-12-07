@@ -15,12 +15,10 @@ public class HandleResult {
             .writerWithDefaultPrettyPrinter();
 
     @SneakyThrows
-    public static ResponseEntity<String> handleResult(
-            Result<?> toHandle, HttpStatus onSuccess, String uri) {
-        if (toHandle.isSuccess())
-            return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
+    public static ResponseEntity<String> handleResult(Result<?> toHandle, HttpStatus onSuccess, String uri) {
+        if (toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
         Error error = toHandle.getError();
-        ErrorWrapper errorWrapper = getInfoByError(error,uri,onSuccess);
+        ErrorWrapper errorWrapper = getInfoByError(error, uri, onSuccess);
         return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occuredstatus());
     }
 
@@ -30,5 +28,8 @@ public class HandleResult {
                     "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundById e -> new ErrorWrapper(
                     "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.NOT_FOUND);
+            case ParkingError.ParkingNotFoundByName e -> new ErrorWrapper(
+                    "Wrong Parking name: " + e.name(), onSuccess, uri, HttpStatus.NOT_FOUND);
         };
-    }}
+    }
+}

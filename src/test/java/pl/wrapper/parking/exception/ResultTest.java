@@ -28,9 +28,9 @@ class ResultTest {
 
     @Test
     void shouldReturnDummyBody() throws Exception {
-        Long id = 4L;
+        Integer id = 4;
 
-        Mockito.when(dummyService.dummyGetParkingBySymbol(id,true)).thenReturn(Result.success(id));
+        Mockito.when(dummyService.dummyGetParkingBySymbol(id, true)).thenReturn(Result.success(id));
 
         MvcResult mvcResult = mockMvc.perform(get("/id/{id}", id)) // add url and variables
                 .andReturn();
