@@ -96,7 +96,7 @@ public class ParkingServiceImplTests {
 
     @Test
     void getClosestParking_throwNoSuchElementException_whenNoParkingsAvailable() {
-        String address = "some place";
+        String address = "test place";
         NominatimLocation location = new NominatimLocation(37.0, -158.0);
 
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
