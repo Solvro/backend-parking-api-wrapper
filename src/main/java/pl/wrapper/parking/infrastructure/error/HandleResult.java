@@ -25,11 +25,11 @@ public class HandleResult {
     private static ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
         return switch (error) {
             case ParkingError.ParkingNotFoundBySymbol e -> new ErrorWrapper(
-                    "Wrong Parking Symbol: " + e.symbol(), onSuccess, uri, HttpStatus.NOT_FOUND);
+                    "Parking of symbol: " + e.symbol() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundById e -> new ErrorWrapper(
-                    "Wrong Parking Id: " + e.id(), onSuccess, uri, HttpStatus.NOT_FOUND);
+                    "Parking of id: " + e.id() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundByName e -> new ErrorWrapper(
-                    "Wrong Parking name: " + e.name(), onSuccess, uri, HttpStatus.NOT_FOUND);
+                    "Parking of name: " + e.name() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
         };
     }
 }

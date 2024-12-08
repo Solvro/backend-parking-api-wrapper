@@ -13,5 +13,5 @@ public interface ParkingService {
 
     Result<ParkingResponse> getBySymbol(String symbol, Boolean opened);
 
-    Result<List<ParkingResponse>> getByParams(String symbol, Integer id, String name, Boolean opened);
+    List<ParkingResponse> getByParams(String symbol, Integer id, String name, Boolean opened);
 }

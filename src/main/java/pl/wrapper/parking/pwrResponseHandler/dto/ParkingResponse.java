@@ -20,6 +20,7 @@ public record ParkingResponse(
     @JsonIgnore
     public boolean isOpened() {
         LocalTime now = LocalTime.now();
-        return now.isAfter(openingHours) && now.isBefore(closingHours);
+        return openingHours == null || closingHours == null ||
+                now.isAfter(openingHours) && now.isBefore(closingHours);
     }
 }

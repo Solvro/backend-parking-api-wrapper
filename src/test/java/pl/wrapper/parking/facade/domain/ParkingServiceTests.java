@@ -4,15 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalTime;
 
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -38,10 +37,6 @@ public class ParkingServiceTests {
 
     private Integer correctId;
 
-
-    private static final ObjectMapper om = new ObjectMapper()
-            .registerModule(new JavaTimeModule());
-
     @BeforeEach
     void setUp() {
         correctId = 1;
@@ -61,25 +56,29 @@ public class ParkingServiceTests {
     }
 
     @Test
-    void shouldReturnResultBody() throws Exception {
+    void shouldReturnResultBodyFromGeneralEndpoints() throws Exception {
         MvcResult result = mockMvc.perform(get("/id")
                         .param("id",String.valueOf(correctId)))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ParkingResponse response = om.readValue(json, ParkingResponse.class);
-        assertEquals(response.parkingId(), correctId);
+        JSONObject jsonObject = new JSONObject(json);
 
-        result = mockMvc.perform(get("/params"))
+        assertEquals(jsonObject.getString("parkingId"), String.valueOf(correctId));
+    }
+
+    @Test
+    void shouldReturnResultBodyFromGetWithAllParametersEndpoint() throws Exception {
+        MvcResult result = mockMvc.perform(get(""))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String listJson = result.getResponse().getContentAsString();
-        List<ParkingResponse> listResponse = om.readValue(listJson, new TypeReference<>() {
-        });
-        assertEquals(listResponse.getFirst().parkingId(), correctId);
+        JSONArray jsonArray = new JSONArray(listJson);
+        JSONObject parking = jsonArray.getJSONObject(0);
 
+        assertEquals(parking.getString("parkingId"), String.valueOf(correctId));
     }
 
     @Test
