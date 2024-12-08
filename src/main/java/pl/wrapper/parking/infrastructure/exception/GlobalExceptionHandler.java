@@ -3,41 +3,34 @@ package pl.wrapper.parking.infrastructure.exception;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import pl.wrapper.parking.facade.exception.AddressNotFoundException;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 
-import java.util.NoSuchElementException;
-
 @ControllerAdvice
 @RequiredArgsConstructor
 class GlobalExceptionHandler {
+
+    @Value("${general.exception.message}")
+    private String generalErrorMessage;
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorWrapper> handleGeneralException(HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorWrapper errorWrapper =
-                new ErrorWrapper("An error has occurred", status, request.getRequestURI(), status);
-        return new ResponseEntity<>(errorWrapper, status);
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ErrorWrapper> handleNoSuchElementException(NoSuchElementException ex, ServerHttpRequest request) {
-        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorWrapper errorWrapper =
-                new ErrorWrapper(ex.getMessage(), status, request.getURI().toString(), status);
+                new ErrorWrapper(generalErrorMessage, status, request.getRequestURI(), status);
         return new ResponseEntity<>(errorWrapper, status);
     }
 
     @ExceptionHandler(AddressNotFoundException.class)
-    public ResponseEntity<ErrorWrapper> handleAddressNotFoundException(AddressNotFoundException ex, ServerHttpRequest request) {
+    public ResponseEntity<ErrorWrapper> handleAddressNotFoundException(AddressNotFoundException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.NOT_FOUND;
         ErrorWrapper errorWrapper =
-                new ErrorWrapper(ex.getMessage(), status, request.getURI().toString(), status);
+                new ErrorWrapper(ex.getMessage(), status, request.getRequestURI(), status);
         return new ResponseEntity<>(errorWrapper, status);
     }
 
