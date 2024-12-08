@@ -4,10 +4,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Collections;
+
+import java.time.LocalTime;
+
 import java.util.List;
+
+
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -33,6 +38,10 @@ public class ParkingServiceTests {
 
     private Integer correctId;
 
+
+    private static final ObjectMapper om = new ObjectMapper()
+            .registerModule(new JavaTimeModule());
+
     @BeforeEach
     void setUp() {
         correctId = 1;
@@ -43,26 +52,45 @@ public class ParkingServiceTests {
                 .parkingId(correctId)
                 .name(name)
                 .symbol(symbol)
+                .openingHours(LocalTime.now().minusHours(1L))
+                .closingHours(LocalTime.now().plusHours(1L))
                 .build();
-        List<ParkingResponse> list = new ArrayList<>(Collections.singleton(parking));
+        List<ParkingResponse> list = List.of(new ParkingResponse[]{parking});
 
         Mockito.when(pwrApiServerCaller.fetchData()).thenReturn(list);
     }
 
     @Test
     void shouldReturnResultBody() throws Exception {
-        MvcResult result = mockMvc.perform(get("/v1/id/{id}", correctId))
+        MvcResult result = mockMvc.perform(get("/id")
+                        .param("id",String.valueOf(correctId)))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String json = result.getResponse().getContentAsString();
-        ParkingResponse response = new ObjectMapper().readValue(json, ParkingResponse.class);
-
+        ParkingResponse response = om.readValue(json, ParkingResponse.class);
         assertEquals(response.parkingId(), correctId);
+
+        result = mockMvc.perform(get("/params"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String listJson = result.getResponse().getContentAsString();
+        List<ParkingResponse> listResponse = om.readValue(listJson, new TypeReference<>() {
+        });
+        assertEquals(listResponse.getFirst().parkingId(), correctId);
+
     }
 
     @Test
     void ShouldReturnError() throws Exception {
-        mockMvc.perform(get("/v1/id/{id}", correctId + 1)).andExpect(status().isNotFound());
+        mockMvc.perform(get("/id")
+                .param("id", String.valueOf(correctId + 1)))
+                .andExpect(status().isNotFound());
+
+        mockMvc.perform(get("/id")
+                        .param("id", String.valueOf(correctId))
+                        .param("opened","false"))
+                .andExpect(status().isNotFound());
     }
 }

@@ -3,37 +3,52 @@ package pl.wrapper.parking.facade.domain;
 import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
-@RequestMapping("v1")
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 class ParkingController {
     private final ParkingService parkingService;
 
-    @GetMapping("/name/{name}")
-    public ResponseEntity<String> getParkingByName(@PathVariable String name) {
-        Result<ParkingResponse> result = parkingService.getByName(name);
-        return handleResult(result, HttpStatus.OK, "v1/name/{name}");
+    @GetMapping("/name")
+    public ResponseEntity<String> getParkingByName(@RequestParam String name, @RequestParam(required = false) Boolean opened) {
+        log.info("Received request: get parking by name: {}", name);
+        Result<ParkingResponse> result = parkingService.getByName(name, opened);
+        return handleResult(result, HttpStatus.OK, "v1/name");
     }
 
-    @GetMapping("/id/{id}")
-    public ResponseEntity<String> getParkingById(@PathVariable Integer id) {
-        Result<ParkingResponse> result = parkingService.getById(id);
-        return handleResult(result, HttpStatus.OK, "v1/name/{id}");
+    @GetMapping("/id")
+    public ResponseEntity<String> getParkingById(@RequestParam Integer id, @RequestParam(required = false) Boolean opened) {
+        log.info("Received request: get parking by id: {}", id);
+        Result<ParkingResponse> result = parkingService.getById(id, opened);
+        return handleResult(result, HttpStatus.OK, "v1/name");
     }
 
-    @GetMapping("/symbol/{symbol}")
-    public ResponseEntity<String> getParkingBySymbol(@PathVariable String symbol) {
-        Result<ParkingResponse> result = parkingService.getBySymbol(symbol);
-        return handleResult(result, HttpStatus.OK, "v1/name/{symbol}");
+    @GetMapping("/symbol")
+    public ResponseEntity<String> getParkingBySymbol(@RequestParam String symbol, @RequestParam(required = false) Boolean opened) {
+        log.info("Received request: get parking by symbol: {}", symbol);
+        Result<ParkingResponse> result = parkingService.getBySymbol(symbol, opened);
+        return handleResult(result, HttpStatus.OK, "v1/name");
+    }
+
+    @GetMapping("/params")
+    public ResponseEntity<String> getParkingByParams(@RequestParam(required = false) String symbol,
+                                                     @RequestParam(required = false) Integer id,
+                                                     @RequestParam(required = false) String name,
+                                                     @RequestParam(required = false) Boolean opened) {
+        log.info("Received request: get parking by symbol: {},id: {} and name: {}",symbol,id,name);
+        Result<List<ParkingResponse>> result = parkingService.getByParams(symbol, id, name, opened);
+        return handleResult(result, HttpStatus.OK, "v1/params");
     }
 }
