@@ -1,6 +1,8 @@
 package pl.wrapper.parking.pwrResponseHandler.dto;
 
 import java.time.LocalTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import org.springframework.lang.Nullable;
 
@@ -13,4 +15,12 @@ public record ParkingResponse(
         String symbol,
         @Nullable LocalTime openingHours,
         @Nullable LocalTime closingHours,
-        Address address) {}
+        Address address) {
+
+    @JsonIgnore
+    public boolean isOpened() {
+        LocalTime now = LocalTime.now();
+        return openingHours == null || closingHours == null ||
+                now.isAfter(openingHours) && now.isBefore(closingHours);
+    }
+}
