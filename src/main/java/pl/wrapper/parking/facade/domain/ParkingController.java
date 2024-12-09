@@ -36,14 +36,14 @@ class ParkingController {
     public ResponseEntity<String> getParkingById(@RequestParam Integer id, @RequestParam(required = false) Boolean opened) {
         log.info("Received request: get parking by id: {}", id);
         Result<ParkingResponse> result = parkingService.getById(id, opened);
-        return handleResult(result, HttpStatus.OK, apiPath + "/name");
+        return handleResult(result, HttpStatus.OK, apiPath + "/id");
     }
 
     @GetMapping("/symbol")
     public ResponseEntity<String> getParkingBySymbol(@RequestParam String symbol, @RequestParam(required = false) Boolean opened) {
         log.info("Received request: get parking by symbol: {}", symbol);
         Result<ParkingResponse> result = parkingService.getBySymbol(symbol, opened);
-        return handleResult(result, HttpStatus.OK,  apiPath + "/name");
+        return handleResult(result, HttpStatus.OK,  apiPath + "/symbol");
     }
 
     @GetMapping

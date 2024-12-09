@@ -6,7 +6,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
@@ -19,32 +18,32 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller) implements ParkingService {
 
     @Override
-    public Result<ParkingResponse> getByName(String name,@Nullable Boolean opened) {
+    public Result<ParkingResponse> getByName(String name,Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, name, opened);
-        Optional<ParkingResponse> found = findParking(predicate);
 
-        return found.map(this::handleFoundParking).orElseGet(() -> Result.failure(new ParkingError.ParkingNotFoundByName(name)));
+        return findParking(predicate)
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundByName(name)));
     }
 
     @Override
-    public Result<ParkingResponse> getById(Integer id,@Nullable Boolean opened) {
+    public Result<ParkingResponse> getById(Integer id,Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, id, null, opened);
-        Optional<ParkingResponse> found = findParking(predicate);
 
-        return found.map(this::handleFoundParking).orElseGet(() -> Result.failure(new ParkingError.ParkingNotFoundById(id)));
+        return findParking(predicate)
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundById(id)));
     }
 
     @Override
-    public Result<ParkingResponse> getBySymbol(String symbol,@Nullable Boolean opened) {
+    public Result<ParkingResponse> getBySymbol(String symbol,Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, null, null, opened);
-        Optional<ParkingResponse> found = findParking(predicate);
 
-        return found.map(this::handleFoundParking).orElseGet(() -> Result.failure(new ParkingError.ParkingNotFoundBySymbol(symbol)));
+        return findParking(predicate)
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundBySymbol(symbol)));
 
     }
 
     @Override
-    public List<ParkingResponse> getByParams(@Nullable String symbol, @Nullable Integer id, @Nullable String name, @Nullable Boolean opened) {
+    public List<ParkingResponse> getByParams(String symbol, Integer id, String name, Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, id, name, opened);
 
         return pwrApiServerCaller.fetchData().stream()
@@ -64,7 +63,7 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller) implements Park
         return Result.success(found);
     }
 
-    private Predicate<ParkingResponse> generatePredicateForParams(@Nullable String symbol,@Nullable Integer id ,@Nullable String name, @Nullable Boolean isOpened){
+    private Predicate<ParkingResponse> generatePredicateForParams(String symbol,Integer id ,String name, Boolean isOpened){
         Predicate<ParkingResponse> predicate = parking -> true;
         if (symbol != null)
             predicate = predicate.and(parking -> symbol.toLowerCase().contains(parking.symbol().toLowerCase()));

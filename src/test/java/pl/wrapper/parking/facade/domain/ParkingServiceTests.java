@@ -36,17 +36,19 @@ public class ParkingServiceTests {
     private PwrApiServerCaller pwrApiServerCaller;
 
     private Integer correctId;
+    private String correctName;
+    private String correctSybol;
 
     @BeforeEach
     void setUp() {
         correctId = 1;
-        String name = "parking";
-        String symbol = "1";
+        correctName = "parking";
+        correctSybol = "1";
 
         ParkingResponse parking = ParkingResponse.builder()
                 .parkingId(correctId)
-                .name(name)
-                .symbol(symbol)
+                .name(correctName)
+                .symbol(correctSybol)
                 .openingHours(LocalTime.now().minusHours(1L))
                 .closingHours(LocalTime.now().plusHours(1L))
                 .build();
@@ -69,7 +71,7 @@ public class ParkingServiceTests {
     }
 
     @Test
-    void shouldReturnResultBodyFromGetWithAllParametersEndpoint() throws Exception {
+    void shouldReturnResultBodyFromGetWithAllParameters() throws Exception {
         MvcResult result = mockMvc.perform(get(""))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -77,6 +79,20 @@ public class ParkingServiceTests {
         String listJson = result.getResponse().getContentAsString();
         JSONArray jsonArray = new JSONArray(listJson);
         JSONObject parking = jsonArray.getJSONObject(0);
+
+        assertEquals(parking.getString("parkingId"), String.valueOf(correctId));
+
+        result = mockMvc.perform(get("")
+                        .param("name",correctName)
+                        .param("id", String.valueOf(correctId))
+                        .param("symbol",correctSybol)
+                        .param("opened", "true"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        listJson = result.getResponse().getContentAsString();
+        jsonArray = new JSONArray(listJson);
+        parking = jsonArray.getJSONObject(0);
 
         assertEquals(parking.getString("parkingId"), String.valueOf(correctId));
     }
