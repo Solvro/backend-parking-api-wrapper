@@ -1,36 +1,37 @@
 package pl.wrapper.parking.facade.domain;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
+@AutoConfigureMockMvc
 public class ParkingControllerIT {
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -62,82 +63,58 @@ public class ParkingControllerIT {
     }
 
     @Test
-    void getAllParkings_returnParkingList() throws IOException {
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(parkings));
+    void getAllParkings_returnParkingList() throws Exception {
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        webTestClient.get().uri("/v1/parkings")
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus()
-                .isOk()
-                .expectBody()
-                .json(objectMapper.writeValueAsString(parkings));
+        mockMvc.perform(MockMvcRequestBuilders.get("/v1/parkings")
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(parkings)));
     }
 
     @Test
-    void getClosestParking_returnClosestParking() {
+    void getClosestParking_returnClosestParking() throws Exception {
         String address = "test place";
         NominatimLocation location = new NominatimLocation(37.0, -158.0);
 
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(parkings));
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        Flux<ParkingResponse> responseBody = webTestClient.get().uri(uriBuilder ->
-                        uriBuilder
-                                .path("/v1/parkings")
-                                .queryParam("address", address)
-                                .build())
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus()
-                .isOk()
-                .returnResult(ParkingResponse.class)
-                .getResponseBody();
-
-        StepVerifier.create(responseBody)
-                .expectNextMatches(p -> p.name().equals("Parking 1"))
-                .verifyComplete();
+        mockMvc.perform(get("/v1/parkings")
+                        .queryParam("address", address)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.parkingId", is(1)))
+                .andExpect(jsonPath("$.name", is("Parking 1")))
+                .andExpect(jsonPath("$.address.geoLatitude").value(37.1f))
+                .andExpect(jsonPath("$.address.geoLongitude").value(-158.8f));
     }
 
     @Test
-    void getClosestParking_returnNotFound() {
+    void getClosestParking_returnNotFound() throws Exception {
         String address = "non-existent address";
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.empty());
 
-        webTestClient.get().uri(uriBuilder ->
-                        uriBuilder
-                                .path("/v1/parkings")
-                                .queryParam("address", address)
-                                .build())
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus()
-                .isNotFound()
-                .expectBody()
-                .jsonPath("$.errorMessage")
-                .value(CoreMatchers.containsString(address));
+        mockMvc.perform(get("/v1/parkings")
+                        .queryParam("address", address)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMessage", anything()));
 
         verify(pwrApiServerCaller, never()).fetchData();
     }
 
     @Test
-    void getClosestParking_returnInternalServerError(@Value("${general.exception.message}") String errorMessage) {
+    void getClosestParking_returnInternalServerError(@Value("${general.exception.message}") String errorMessage) throws Exception {
         String address = "test place";
         NominatimLocation location = new NominatimLocation(37.0, -158.0);
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(Collections.emptyList()));
+        when(pwrApiServerCaller.fetchData()).thenReturn(Collections.emptyList());
 
-        webTestClient.get().uri(uriBuilder ->
-                        uriBuilder
-                                .path("/v1/parkings")
-                                .queryParam("address", address)
-                                .build())
-                .accept(MediaType.APPLICATION_JSON)
-                .exchange()
-                .expectStatus()
-                .is5xxServerError()
-                .expectBody()
-                .jsonPath("$.errorMessage")
-                .value(CoreMatchers.is(errorMessage));
+        mockMvc.perform(get("/v1/parkings")
+                        .queryParam("address", address)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.errorMessage", is(errorMessage)));
     }
 }

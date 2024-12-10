@@ -8,10 +8,13 @@ import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.text.SimpleDateFormat;
+
 public class HandleResult {
     private static final ObjectWriter ow = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(new JavaTimeModule())
+            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
             .writerWithDefaultPrettyPrinter();
 
     @SneakyThrows

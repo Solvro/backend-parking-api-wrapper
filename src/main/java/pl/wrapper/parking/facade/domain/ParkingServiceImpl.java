@@ -6,48 +6,49 @@ import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.facade.exception.AddressNotFoundException;
+import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-import reactor.core.publisher.Mono;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Slf4j
 record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient) implements ParkingService {
 
     @Override
-    public Mono<List<ParkingResponse>> getAllParkings() {
-        return pwrApiServerCaller.fetchData();
+    public Result<List<ParkingResponse>> getAllParkings() {
+        return Result.success(pwrApiServerCaller.fetchData());
     }
 
     @Override
-    public Mono<ParkingResponse> getClosestParking(String address) {
-        Mono<NominatimLocation> geoLocation = nominatimClient.search(address, "json").next();
-        return geoLocation
-                .flatMap(location -> {
+    public Result<ParkingResponse> getClosestParking(String address) {
+        Optional<NominatimLocation> geoLocation = nominatimClient.search(address, "json").next().blockOptional();
+        return Result.success(
+                geoLocation.map(location -> {
                     log.info("Geocoded address for coordinates: {} {}", location.latitude(), location.longitude());
-                    return findClosestParking(location, getAllParkings());
+                    return findClosestParking(location, getAllParkings().getData());
                 })
-                .switchIfEmpty(Mono.defer(() -> {
+                .orElseThrow(() -> {
                     log.warn("No geocoding results for address: {}", address);
-                    return Mono.error(new AddressNotFoundException(address));
-                }));
+                    return new AddressNotFoundException(address);
+                })
+        );
     }
 
-    private Mono<ParkingResponse> findClosestParking(NominatimLocation location, Mono<List<ParkingResponse>> parkingLots) {
+    private ParkingResponse findClosestParking(NominatimLocation location, List<ParkingResponse> parkingLots) {
         double lat = location.latitude();
         double lon = location.longitude();
 
-        return parkingLots.flatMap(parkings -> Mono.just(parkings.stream()
+        return parkingLots.stream()
                 .min(Comparator.comparingDouble(parking -> haversineDistance(
                         lat, lon,
                         parking.address().geoLatitude(),
                         parking.address().geoLongitude())))
-                .orElseThrow(() -> new NoSuchElementException("No parkings available")))
-        );
+                .orElseThrow(() -> new NoSuchElementException("No parkings available"));
     }
 
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {

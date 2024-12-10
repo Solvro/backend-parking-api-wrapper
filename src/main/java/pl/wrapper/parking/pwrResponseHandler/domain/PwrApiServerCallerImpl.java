@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,9 +23,9 @@ public class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
     @Override
     @Cacheable("parkingListCache")
-    public Mono<List<ParkingResponse>> fetchData() {
+    public List<ParkingResponse> fetchData() {
         log.info("Fetching new data from Pwr api.");
-        Mono<List<ParkingResponse>> parsedData = pwrApiCaller.fetchParkingPlaces();
+        List<ParkingResponse> parsedData = pwrApiCaller.fetchParkingPlaces().block();
         log.info("Fetch successful. Cache updated.");
         return parsedData;
     }

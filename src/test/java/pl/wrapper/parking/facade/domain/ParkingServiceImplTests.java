@@ -9,17 +9,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.facade.exception.AddressNotFoundException;
+import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,27 +54,27 @@ public class ParkingServiceImplTests {
     }
 
     @Test
-    void getAllParkings_returnParkingList() {
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(parkings));
+    void getAllParkings_returnSuccessWithParkingList() {
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        StepVerifier.create(parkingService.getAllParkings())
-                .expectNext(parkings)
-                .verifyComplete();
+        Result<List<ParkingResponse>> result = parkingService.getAllParkings();
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getData()).containsExactlyInAnyOrderElementsOf(parkings);
 
         verify(pwrApiServerCaller).fetchData();
     }
 
     @Test
-    void getClosestParking_returnClosestParking() {
+    void getClosestParking_returnSuccessWithClosestParking() {
         String address = "test place";
         NominatimLocation location = new NominatimLocation(37.0, -158.0);
 
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(parkings));
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        StepVerifier.create(parkingService.getClosestParking(address))
-                .expectNextMatches(p -> p.name().equals("Parking 1"))
-                .verifyComplete();
+        Result<ParkingResponse> result = parkingService.getClosestParking(address);
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getData()).matches(p -> p.name().equals("Parking 1"));
 
         verify(nominatimClient).search(address, "json");
         verify(pwrApiServerCaller).fetchData();
@@ -86,9 +86,8 @@ public class ParkingServiceImplTests {
 
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.empty());
 
-        StepVerifier.create(parkingService.getClosestParking(address))
-                .expectError(AddressNotFoundException.class)
-                .verify();
+        assertThatExceptionOfType(AddressNotFoundException.class)
+                .isThrownBy(() -> parkingService.getClosestParking(address));
 
         verify(nominatimClient).search(address, "json");
         verify(pwrApiServerCaller, never()).fetchData();
@@ -100,11 +99,11 @@ public class ParkingServiceImplTests {
         NominatimLocation location = new NominatimLocation(37.0, -158.0);
 
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
-        when(pwrApiServerCaller.fetchData()).thenReturn(Mono.just(Collections.emptyList()));
+        when(pwrApiServerCaller.fetchData()).thenReturn(Collections.emptyList());
 
-        StepVerifier.create(parkingService.getClosestParking(address))
-                .expectError(NoSuchElementException.class)
-                .verify();
+        assertThatExceptionOfType(NoSuchElementException.class)
+                .isThrownBy(() -> parkingService.getClosestParking(address))
+                .withMessageContaining("No parkings available");
 
         verify(nominatimClient).search(address, "json");
         verify(pwrApiServerCaller).fetchData();
