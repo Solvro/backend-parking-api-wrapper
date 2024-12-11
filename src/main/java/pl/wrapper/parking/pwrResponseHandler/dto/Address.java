@@ -1,3 +1,7 @@
 package pl.wrapper.parking.pwrResponseHandler.dto;
 
-public record Address(String streetAddress, float geoLatitude, float geoLongitude) {}
+import io.swagger.v3.oas.annotations.media.Schema;
+
+public record Address(@Schema(example = "Example 201, 11-041 Wrocław") String streetAddress,
+                      @Schema(example = "21.37") float geoLatitude,
+                      @Schema(format = "4.20") float geoLongitude) {}

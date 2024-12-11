@@ -7,7 +7,7 @@ import pl.wrapper.parking.infrastructure.error.Result;
 @Service
 public class DummyService {
 
-    public Result<Long> dummyGetParkingBySymbol(Long id, boolean willSucceed) {
+    public Result<Integer> dummyGetParkingBySymbol(Integer id, boolean willSucceed) {
         if (willSucceed) return Result.success(id); // if success
         return Result.failure(new ParkingError.ParkingNotFoundById(id)); // if failure, return appropriate custom error
     }
