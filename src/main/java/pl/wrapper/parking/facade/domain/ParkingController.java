@@ -36,12 +36,14 @@ class ParkingController {
 
     @GetMapping(path = "all-with-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ParkingResponse>> getAllParkingWithFreeSpots(@RequestParam(required = false) Boolean opened) {
+        log.info("Finding all parking with free spots");
         List<ParkingResponse> result = parkingService.getAllWithFreeSpots(opened);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
     @GetMapping(path = "most-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getParkingWithTheMostFreeSpots(@RequestParam(required = false) Boolean opened, HttpServletRequest request) {
+        log.info("Finding parking with the most free spots");
         Result<ParkingResponse> result = parkingService.getWithTheMostFreeSpots(opened);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
