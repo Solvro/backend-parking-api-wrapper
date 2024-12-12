@@ -1,67 +1,61 @@
 package pl.wrapper.parking.facade.domain;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import pl.wrapper.parking.facade.ParkingService;
+import pl.wrapper.parking.infrastructure.error.ParkingError;
+import pl.wrapper.parking.infrastructure.error.Result;
+import pl.wrapper.parking.pwrResponseHandler.dto.Address;
+import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@WebMvcTest(ParkingController.class)
 public class ParkingControllerTests {
-
-    @LocalServerPort
-    private String port;
-
-    @Value("${server.servlet.context-path}")
-    private String apiUrlPath;
-
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
+
+    @MockBean
+    private ParkingService parkingService;
 
     @Test
-    public void TestGetByParamsWithNoParams() throws JSONException {
-        String url = "http://localhost:" + port + apiUrlPath;
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    void getClosestParking_returnClosestParking() throws Exception {
+        String address = "test place";
+        ParkingResponse parking = ParkingResponse.builder()
+                .parkingId(1)
+                .name("Parking 1")
+                .symbol("P1")
+                .address(new Address("street 1", 37.1f, -158.8f))
+                .build();
+        when(parkingService.getClosestParking(address)).thenReturn(Result.success(parking));
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-
-        JSONArray jsonArray = new JSONArray(response.getBody());
-
-        assertDoesNotThrow(() -> JSONException.class
-                ,jsonArray.getJSONObject(0).getString("parkingId"));
-
+        mockMvc.perform(get("/parkings")
+                        .queryParam("address", address)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.parkingId", is(parking.parkingId())))
+                .andExpect(jsonPath("$.name", is(parking.name())))
+                .andExpect(jsonPath("$.address.geoLatitude").value(parking.address().geoLatitude()))
+                .andExpect(jsonPath("$.address.geoLongitude").value(parking.address().geoLongitude()));
     }
 
     @Test
-    public void TestGetByParamsWithParams() throws JSONException {
-        String url = "http://localhost:" + port + apiUrlPath + "/?symbol=WRO";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+    void getClosestParking_returnNotFound() throws Exception {
+        String address = "non-existent address";
+        ParkingError.ParkingNotFoundByAddress error = new ParkingError.ParkingNotFoundByAddress(address);
+        when(parkingService.getClosestParking(address)).thenReturn(Result.failure(error));
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-
-        JSONArray jsonArray = new JSONArray(response.getBody());
-
-        assertDoesNotThrow(() -> JSONException.class
-                ,jsonArray.getJSONObject(0).getString("parkingId"));
-    }
-
-    @Test
-    public void TestGetByParamsNoParkingFound() throws JSONException {
-        String url = "http://localhost:" + port + apiUrlPath + "/?symbol=TESTNOTFOUND";
-        ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
-
-        JSONArray jsonArray = new JSONArray(response.getBody());
-
-        assertThrows(JSONException.class
-                ,() -> jsonArray.getJSONObject(0));
+        mockMvc.perform(get("/parkings")
+                        .queryParam("address", address)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMessage", anything()));
     }
 }

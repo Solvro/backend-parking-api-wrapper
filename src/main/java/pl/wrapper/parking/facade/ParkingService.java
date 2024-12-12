@@ -7,6 +7,7 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import java.util.List;
 
 public interface ParkingService {
+    Result<ParkingResponse> getClosestParking(String address);
 
     Result<ParkingResponse> getByName(String name, @Nullable Boolean opened);
 

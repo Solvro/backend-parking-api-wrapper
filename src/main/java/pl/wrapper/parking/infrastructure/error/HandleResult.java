@@ -8,10 +8,13 @@ import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.text.SimpleDateFormat;
+
 public class HandleResult {
     private static final ObjectWriter ow = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT)
             .registerModule(new JavaTimeModule())
+            .setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"))
             .writerWithDefaultPrettyPrinter();
 
     @SneakyThrows
@@ -19,7 +22,7 @@ public class HandleResult {
         if (toHandle.isSuccess()) return new ResponseEntity<>(ow.writeValueAsString(toHandle.getData()), onSuccess);
         Error error = toHandle.getError();
         ErrorWrapper errorWrapper = getInfoByError(error, uri, onSuccess);
-        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occuredstatus());
+        return new ResponseEntity<>(ow.writeValueAsString(errorWrapper), errorWrapper.occurredStatus());
     }
 
     private static ErrorWrapper getInfoByError(Error error, String uri, HttpStatus onSuccess) {
@@ -30,6 +33,8 @@ public class HandleResult {
                     "Parking of id: " + e.id() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundByName e -> new ErrorWrapper(
                     "Parking of name: " + e.name() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
+            case ParkingError.ParkingNotFoundByAddress e -> new ErrorWrapper(
+                    "Parking of address: " + e.address() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
         };
     }
 }

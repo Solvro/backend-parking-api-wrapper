@@ -18,9 +18,18 @@ class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorWrapper> handleGeneralException(Exception e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        String message = "An error has occured";
+        String message = "An error has occurred";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), e);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    @ExceptionHandler(NominatimClientException.class)
+    public ResponseEntity<ErrorWrapper> handleNominatimClientException(NominatimClientException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
+        String message = ex.getMessage();
+        ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
+        logError(message, request.getRequestURI(), ex);
         return new ResponseEntity<>(errorWrapper, status);
     }
 
@@ -61,6 +70,6 @@ class GlobalExceptionHandler {
     }
 
     private <T extends Exception> void logError(String message, String uri, T e){
-        log.error("{}at uri: {}; Details: {}", message, uri, e.getMessage());
+        log.error("{} at uri: {}; Details: {}", message, uri, e.getMessage());
     }
 }

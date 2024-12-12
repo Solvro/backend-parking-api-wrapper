@@ -59,7 +59,7 @@ public class ParkingServiceTests {
 
     @Test
     void shouldReturnResultBodyFromGeneralEndpoints() throws Exception {
-        MvcResult result = mockMvc.perform(get("/id")
+        MvcResult result = mockMvc.perform(get("/parkings/id")
                         .param("id",String.valueOf(correctId)))
                 .andExpect(status().isOk())
                 .andReturn();
@@ -72,7 +72,7 @@ public class ParkingServiceTests {
 
     @Test
     void shouldReturnResultBodyFromGetWithAllParameters() throws Exception {
-        MvcResult result = mockMvc.perform(get(""))
+        MvcResult result = mockMvc.perform(get("/parkings"))
                 .andExpect(status().isOk())
                 .andReturn();
 
@@ -82,7 +82,7 @@ public class ParkingServiceTests {
 
         assertEquals(parking.getString("parkingId"), String.valueOf(correctId));
 
-        result = mockMvc.perform(get("")
+        result = mockMvc.perform(get("/parkings")
                         .param("name",correctName)
                         .param("id", String.valueOf(correctId))
                         .param("symbol",correctSybol)
@@ -99,11 +99,11 @@ public class ParkingServiceTests {
 
     @Test
     void ShouldReturnError() throws Exception {
-        mockMvc.perform(get("/id")
+        mockMvc.perform(get("/parkings/id")
                 .param("id", String.valueOf(correctId + 1)))
                 .andExpect(status().isNotFound());
 
-        mockMvc.perform(get("/id")
+        mockMvc.perform(get("/parkings/id")
                         .param("id", String.valueOf(correctId))
                         .param("opened","false"))
                 .andExpect(status().isNotFound());
