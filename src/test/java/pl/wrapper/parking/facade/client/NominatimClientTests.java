@@ -11,7 +11,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import pl.wrapper.parking.facade.config.NominatimClientConfig;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
-import pl.wrapper.parking.facade.exception.NominatimClientException;
+import pl.wrapper.parking.infrastructure.exception.NominatimClientException;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 

@@ -4,12 +4,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import pl.wrapper.parking.facade.exception.AddressNotFoundException;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 
 @ControllerAdvice
@@ -17,20 +15,18 @@ import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 @Slf4j
 class GlobalExceptionHandler {
 
-    @Value("${general.exception.message}")
-    private String generalErrorMessage;
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorWrapper> handleGeneralException(Exception e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
-        ErrorWrapper errorWrapper = new ErrorWrapper(generalErrorMessage, status, request.getRequestURI(), status);
-        logError(generalErrorMessage, request.getRequestURI(), e);
+        String message = "An error has occurred";
+        ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
+        logError(message, request.getRequestURI(), e);
         return new ResponseEntity<>(errorWrapper, status);
     }
 
-    @ExceptionHandler(AddressNotFoundException.class)
-    public ResponseEntity<ErrorWrapper> handleAddressNotFoundException(AddressNotFoundException ex, HttpServletRequest request) {
-        HttpStatus status = HttpStatus.NOT_FOUND;
+    @ExceptionHandler(NominatimClientException.class)
+    public ResponseEntity<ErrorWrapper> handleNominatimClientException(NominatimClientException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
         String message = ex.getMessage();
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), ex);
@@ -74,6 +70,6 @@ class GlobalExceptionHandler {
     }
 
     private <T extends Exception> void logError(String message, String uri, T e){
-        log.error("{}at uri: {}; Details: {}", message, uri, e.getMessage());
+        log.error("{} at uri: {}; Details: {}", message, uri, e.getMessage());
     }
 }

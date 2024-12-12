@@ -8,7 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import pl.wrapper.parking.facade.client.NominatimClient;
-import pl.wrapper.parking.facade.exception.NominatimClientException;
+import pl.wrapper.parking.infrastructure.exception.NominatimClientException;
 import reactor.core.publisher.Mono;
 
 @Configuration
