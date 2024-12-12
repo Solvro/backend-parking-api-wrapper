@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
+import pl.wrapper.parking.infrastructure.error.Error;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
@@ -16,6 +17,24 @@ import java.util.function.Predicate;
 @Service
 @Slf4j
 record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient) implements ParkingService {
+
+    @Override
+    public List<ParkingResponse> getAllWithFreeSpots(Boolean opened) {
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened);
+        predicate = predicate.and(parking -> parking.freeSpots() > 0);
+
+        return pwrApiServerCaller.fetchData().stream().filter(predicate).toList();
+    }
+
+    @Override
+    public Result<ParkingResponse> getWithTheMostFreeSpots(Boolean opened) {
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened);
+        List<ParkingResponse> parkings = pwrApiServerCaller.fetchData().stream().filter(predicate).toList();
+
+        return parkings.stream()
+                .max(Comparator.comparingInt(ParkingResponse::freeSpots))
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingWithTheMostFreeSpotsNotFound()));
+    }
 
     @Override
     public Result<ParkingResponse> getClosestParking(String address) {

@@ -9,4 +9,6 @@ public sealed interface ParkingError extends Error {
     record ParkingNotFoundByName(String name) implements ParkingError {}
 
     record ParkingNotFoundByAddress(String address) implements ParkingError {}
+
+    record ParkingWithTheMostFreeSpotsNotFound() implements ParkingError {}
 }

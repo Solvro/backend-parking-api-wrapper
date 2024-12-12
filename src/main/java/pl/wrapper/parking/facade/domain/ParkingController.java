@@ -34,31 +34,23 @@ import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 class ParkingController {
     private final ParkingService parkingService;
 
-    @Operation(
-            summary = "find the closest parking by address",
-            parameters = @Parameter(
-                    name = "address",
-                    description = "The address to find the closest parking for",
-                    required = true,
-                    example = "Flower 20, 50-337 Wroclaw"
-            ),
+    @GetMapping(path = "all-with-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<ParkingResponse>> getAllParkingWithFreeSpots(@RequestParam(required = false) Boolean opened) {
+        List<ParkingResponse> result = parkingService.getAllWithFreeSpots(opened);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "most-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getParkingWithTheMostFreeSpots(@RequestParam(required = false) Boolean opened, HttpServletRequest request) {
+        Result<ParkingResponse> result = parkingService.getWithTheMostFreeSpots(opened);
+        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    }
+
+    @Operation(summary = "find the closest parking by address",
+            parameters = @Parameter(name = "address", description = "The address to find the closest parking for", required = true, example = "Flower 20, 50-337 Wroclaw"),
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Closest parking found",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ParkingResponse.class)
-                            )
-                    ),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No parking found for the given address",
-                            content = @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)
-                            )
-                    )
+                    @ApiResponse(responseCode = "200", description = "Closest parking found", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ParkingResponse.class))),
+                    @ApiResponse(responseCode = "404", description = "No parking found for the given address", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(implementation = ErrorWrapper.class)))
             }
     )
     @GetMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)

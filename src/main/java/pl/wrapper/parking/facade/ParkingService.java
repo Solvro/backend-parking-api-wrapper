@@ -7,6 +7,10 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import java.util.List;
 
 public interface ParkingService {
+    List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened);
+
+    Result<ParkingResponse> getWithTheMostFreeSpots(@Nullable Boolean opened);
+
     Result<ParkingResponse> getClosestParking(String address);
 
     Result<ParkingResponse> getByName(String name, @Nullable Boolean opened);
