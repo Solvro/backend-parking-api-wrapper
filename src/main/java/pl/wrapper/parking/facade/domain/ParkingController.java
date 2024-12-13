@@ -34,15 +34,20 @@ import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 class ParkingController {
     private final ParkingService parkingService;
 
+    @Operation(summary = "get list of parkings with free spots from all/opened/closed parkings")
+    @ApiResponse(responseCode = "200", description = "list of parkings", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ParkingResponse.class))))
     @GetMapping(path = "all-with-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<ParkingResponse>> getAllParkingWithFreeSpots(@RequestParam(required = false) Boolean opened) {
+    public ResponseEntity<List<ParkingResponse>> getAllParkingWithFreeSpots(@Parameter(description = "search in opened parkings") @RequestParam(required = false) Boolean opened) {
         log.info("Finding all parking with free spots");
         List<ParkingResponse> result = parkingService.getAllWithFreeSpots(opened);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
+    @Operation(summary = "get parking with the most free spots from all/opened/closed parkings")
+    @ApiResponse(responseCode = "200", description = "parking found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
+    @ApiResponse(responseCode = "404", description = "parking not found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorWrapper.class)))
     @GetMapping(path = "most-free-spots", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getParkingWithTheMostFreeSpots(@RequestParam(required = false) Boolean opened, HttpServletRequest request) {
+    public ResponseEntity<String> getParkingWithTheMostFreeSpots(@Parameter(description = "search in opened parkings") @RequestParam(required = false) Boolean opened, HttpServletRequest request) {
         log.info("Finding parking with the most free spots");
         Result<ParkingResponse> result = parkingService.getWithTheMostFreeSpots(opened);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
