@@ -9,8 +9,11 @@ import org.springframework.lang.Nullable;
 
 @Builder
 public record ParkingResponse(
+        @Schema(example = "4")
         int parkingId,
+        @Schema(example = "33")
         int freeSpots,
+        @Schema(example = "97")
         int totalSpots,
         @Schema(example = "best parking")
         String name,
@@ -20,6 +23,7 @@ public record ParkingResponse(
         @Nullable LocalTime openingHours,
         @Schema(type = "string", format = "time", example = "22:00:00")
         @Nullable LocalTime closingHours,
+        @Schema(implementation = Address.class)
         Address address) {
 
     @JsonIgnore

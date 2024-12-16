@@ -36,7 +36,7 @@ public class ParkingControllerTests {
                 .build();
         when(parkingService.getClosestParking(address)).thenReturn(Result.success(parking));
 
-        mockMvc.perform(get("/parkings")
+        mockMvc.perform(get("/parkings/address")
                         .queryParam("address", address)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -52,7 +52,7 @@ public class ParkingControllerTests {
         ParkingError.ParkingNotFoundByAddress error = new ParkingError.ParkingNotFoundByAddress(address);
         when(parkingService.getClosestParking(address)).thenReturn(Result.failure(error));
 
-        mockMvc.perform(get("/parkings")
+        mockMvc.perform(get("/parkings/address")
                         .queryParam("address", address)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
