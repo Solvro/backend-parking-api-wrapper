@@ -12,6 +12,7 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -21,16 +22,13 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
     public List<ParkingResponse> getAllWithFreeSpots(Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened);
         predicate = predicate.and(parking -> parking.freeSpots() > 0);
-
-        return pwrApiServerCaller.fetchData().stream().filter(predicate).toList();
+        return getStreamOfFilteredFetchedParkingLots(predicate).toList();
     }
 
     @Override
     public Result<ParkingResponse> getWithTheMostFreeSpots(Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened);
-        List<ParkingResponse> parkings = pwrApiServerCaller.fetchData().stream().filter(predicate).toList();
-
-        return parkings.stream()
+        return getStreamOfFilteredFetchedParkingLots(predicate)
                 .max(Comparator.comparingInt(ParkingResponse::freeSpots))
                 .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.NoFreeParkingSpotsAvailable()));
     }
@@ -79,14 +77,16 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
     public List<ParkingResponse> getByParams(String symbol, Integer id, String name, Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, id, name, opened);
 
+        return getStreamOfFilteredFetchedParkingLots(predicate).toList();
+    }
+
+    private Stream<ParkingResponse> getStreamOfFilteredFetchedParkingLots(Predicate<ParkingResponse> filteringPredicate) {
         return pwrApiServerCaller.fetchData().stream()
-                .filter(predicate)
-                .toList();
+                .filter(filteringPredicate);
     }
 
     private Optional<ParkingResponse> findParking(Predicate<ParkingResponse> predicate){
-        return pwrApiServerCaller.fetchData().stream()
-                .filter(predicate)
+        return getStreamOfFilteredFetchedParkingLots(predicate)
                 .findFirst();
     }
 
