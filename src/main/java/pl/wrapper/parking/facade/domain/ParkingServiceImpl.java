@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
-import pl.wrapper.parking.infrastructure.error.Error;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
