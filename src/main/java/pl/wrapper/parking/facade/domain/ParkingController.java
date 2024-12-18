@@ -30,11 +30,38 @@ import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Parking API")
+@Tag(name = "Parking API", description = "API for managing parking-related operations")
 class ParkingController {
     private final ParkingService parkingService;
 
-    @GetMapping(params = "address", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+            summary = "find the closest parking by address",
+            parameters = @Parameter(
+                    name = "address",
+                    description = "The address to find the closest parking for",
+                    required = true,
+                    example = "Flower 20, 50-337 Wroclaw"
+            ),
+            responses = {
+                    @ApiResponse(
+                            responseCode = "200",
+                            description = "Closest parking found",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ParkingResponse.class)
+                            )
+                    ),
+                    @ApiResponse(
+                            responseCode = "404",
+                            description = "No parking found for the given address",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                    schema = @Schema(implementation = ErrorWrapper.class)
+                            )
+                    )
+            }
+    )
+    @GetMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getClosestParking(@RequestParam("address") String address, HttpServletRequest request) {
         log.info("Finding closest parking for address: {}", address);
         Result<ParkingResponse> result = parkingService.getClosestParking(address);

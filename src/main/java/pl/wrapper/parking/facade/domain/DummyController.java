@@ -2,6 +2,7 @@ package pl.wrapper.parking.facade.domain;
 
 import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import pl.wrapper.parking.infrastructure.error.*;
 
 @RestController
 @RequiredArgsConstructor
+@Hidden
 public class DummyController {
     private final DummyService dummyService;
 

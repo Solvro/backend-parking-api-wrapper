@@ -68,7 +68,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings")
+        mockMvc.perform(get("/parkings/address")
                         .queryParam("address", address)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -83,7 +83,7 @@ public class ParkingControllerIT {
         String address = "non-existent address";
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.empty());
 
-        mockMvc.perform(get("/parkings")
+        mockMvc.perform(get("/parkings/address")
                         .queryParam("address", address)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
@@ -99,7 +99,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/parkings")
+        mockMvc.perform(get("/parkings/address")
                         .queryParam("address", address)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
