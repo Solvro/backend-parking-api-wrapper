@@ -32,7 +32,7 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
 
         return parkings.stream()
                 .max(Comparator.comparingInt(ParkingResponse::freeSpots))
-                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingWithTheMostFreeSpotsNotFound()));
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.NoFreeParkingSpotsAvailable()));
     }
 
     @Override

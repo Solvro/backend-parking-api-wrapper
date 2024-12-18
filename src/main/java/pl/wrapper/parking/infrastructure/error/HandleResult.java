@@ -35,8 +35,8 @@ public class HandleResult {
                     "Parking of name: " + e.name() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
             case ParkingError.ParkingNotFoundByAddress e -> new ErrorWrapper(
                     "Parking of address: " + e.address() + " not found", onSuccess, uri, HttpStatus.NOT_FOUND);
-            case ParkingError.ParkingWithTheMostFreeSpotsNotFound ignored -> new ErrorWrapper(
-                    "Parking with the most free spots not found", onSuccess, uri, HttpStatus.NOT_FOUND);
+            case ParkingError.NoFreeParkingSpotsAvailable ignored -> new ErrorWrapper(
+                    "No free parking spots available", onSuccess, uri, HttpStatus.NOT_FOUND);
         };
     }
 }

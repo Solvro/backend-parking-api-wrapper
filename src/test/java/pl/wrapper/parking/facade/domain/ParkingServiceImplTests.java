@@ -216,6 +216,6 @@ public class ParkingServiceImplTests {
         Result<ParkingResponse> result = parkingService.getWithTheMostFreeSpots(false);
 
         assertFalse(result.isSuccess());
-        assertInstanceOf(ParkingError.ParkingWithTheMostFreeSpotsNotFound.class, result.getError());
+        assertInstanceOf(ParkingError.NoFreeParkingSpotsAvailable.class, result.getError());
     }
 }

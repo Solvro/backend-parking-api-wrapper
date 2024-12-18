@@ -223,7 +223,7 @@ public class ParkingControllerTests {
 
     @Test
     void getParkingWithTheMostFreeSpacesFromClosed_shouldReturnNotFound() throws Exception {
-        Result<ParkingResponse> serviceResponse = Result.failure(new ParkingError.ParkingWithTheMostFreeSpotsNotFound());
+        Result<ParkingResponse> serviceResponse = Result.failure(new ParkingError.NoFreeParkingSpotsAvailable());
         when(parkingService.getWithTheMostFreeSpots(false)).thenReturn(serviceResponse);
 
         mockMvc.perform(get("/parkings/most-free-spots")
