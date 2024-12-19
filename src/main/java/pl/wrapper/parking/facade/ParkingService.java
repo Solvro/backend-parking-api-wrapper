@@ -15,9 +15,9 @@ public interface ParkingService {
 
     Result<ParkingResponse> getByName(String name, @Nullable Boolean opened);
 
-    Result<ParkingResponse> getById(Integer id,@Nullable Boolean opened);
+    Result<ParkingResponse> getById(Integer id, @Nullable Boolean opened);
 
-    Result<ParkingResponse> getBySymbol(String symbol,@Nullable Boolean opened);
+    Result<ParkingResponse> getBySymbol(String symbol, @Nullable Boolean opened);
 
-    List<ParkingResponse> getByParams(@Nullable String symbol,@Nullable Integer id,@Nullable String name,@Nullable Boolean opened);
+    List<ParkingResponse> getByParams(@Nullable String symbol, @Nullable Integer id, @Nullable String name, @Nullable Boolean opened, @Nullable Boolean hasFreeSpots);
 }
