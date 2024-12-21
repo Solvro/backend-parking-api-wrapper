@@ -12,10 +12,25 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @Service
 @Slf4j
 record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient) implements ParkingService {
+
+    @Override
+    public List<ParkingResponse> getAllWithFreeSpots(Boolean opened) {
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened, true);
+        return getStreamOfFilteredFetchedParkingLots(predicate).toList();
+    }
+
+    @Override
+    public Result<ParkingResponse> getWithTheMostFreeSpots(Boolean opened) {
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened, null);
+        return getStreamOfFilteredFetchedParkingLots(predicate)
+                .max(Comparator.comparingInt(ParkingResponse::freeSpots))
+                .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.NoFreeParkingSpotsAvailable()));
+    }
 
     @Override
     public Result<ParkingResponse> getClosestParking(String address) {
@@ -34,41 +49,39 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
 
     @Override
     public Result<ParkingResponse> getByName(String name,Boolean opened) {
-        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, name, opened);
-
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, name, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundByName(name)));
     }
 
     @Override
     public Result<ParkingResponse> getById(Integer id,Boolean opened) {
-        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, id, null, opened);
-
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(null, id, null, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundById(id)));
     }
 
     @Override
     public Result<ParkingResponse> getBySymbol(String symbol,Boolean opened) {
-        Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, null, null, opened);
-
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, null, null, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking).orElse(Result.failure(new ParkingError.ParkingNotFoundBySymbol(symbol)));
 
     }
 
     @Override
-    public List<ParkingResponse> getByParams(String symbol, Integer id, String name, Boolean opened) {
-        Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, id, name, opened);
+    public List<ParkingResponse> getByParams(String symbol, Integer id, String name, Boolean opened, Boolean hasFreeSpots) {
+        Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, id, name, opened, hasFreeSpots);
+        return getStreamOfFilteredFetchedParkingLots(predicate).toList();
+    }
 
+    private Stream<ParkingResponse> getStreamOfFilteredFetchedParkingLots(Predicate<ParkingResponse> filteringPredicate) {
         return pwrApiServerCaller.fetchData().stream()
-                .filter(predicate)
-                .toList();
+                .filter(filteringPredicate);
     }
 
     private Optional<ParkingResponse> findParking(Predicate<ParkingResponse> predicate){
-        return pwrApiServerCaller.fetchData().stream()
-                .filter(predicate)
+        return getStreamOfFilteredFetchedParkingLots(predicate)
                 .findFirst();
     }
 
@@ -99,7 +112,7 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
         return Result.success(found);
     }
 
-    private Predicate<ParkingResponse> generatePredicateForParams(String symbol,Integer id ,String name, Boolean isOpened){
+    private Predicate<ParkingResponse> generatePredicateForParams(String symbol,Integer id ,String name, Boolean isOpened, Boolean hasFreeSpots){
         Predicate<ParkingResponse> predicate = parking -> true;
         if (symbol != null)
             predicate = predicate.and(parking -> symbol.toLowerCase().contains(parking.symbol().toLowerCase()));
@@ -109,6 +122,8 @@ record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient
             predicate = predicate.and(parking -> name.toLowerCase().contains(parking.name().toLowerCase()));
         if (isOpened != null)
             predicate = predicate.and(parking -> Objects.equals(isOpened, parking.isOpened()));
+        if (hasFreeSpots != null)
+            predicate = predicate.and(parking -> hasFreeSpots == (parking.freeSpots() > 0));
 
         return predicate;
     }
