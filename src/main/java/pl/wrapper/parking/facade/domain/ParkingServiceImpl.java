@@ -3,7 +3,7 @@ package pl.wrapper.parking.facade.domain;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
-import pl.wrapper.parking.facade.client.NominatimClient;
+import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;

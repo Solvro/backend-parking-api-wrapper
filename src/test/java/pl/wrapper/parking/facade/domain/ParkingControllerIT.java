@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.wrapper.parking.facade.client.NominatimClient;
+import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;

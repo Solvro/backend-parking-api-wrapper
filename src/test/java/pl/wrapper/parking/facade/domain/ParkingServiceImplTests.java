@@ -6,7 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.wrapper.parking.facade.client.NominatimClient;
+import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
