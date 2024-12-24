@@ -1,6 +1,10 @@
 package pl.wrapper.parking.infrastructure.nominatim.configuration;
 
+import static org.assertj.core.api.Assertions.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.List;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -14,11 +18,6 @@ import pl.wrapper.parking.infrastructure.exception.NominatimClientException;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
-
-import java.io.IOException;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @ContextConfiguration(classes = NominatimClientConfig.class)
@@ -48,16 +47,14 @@ public class NominatimClientTests {
         double lat2 = 56.9339537;
         double lon2 = 13.7331028;
 
-        List<NominatimLocation> locations = List.of(
-                new NominatimLocation(lat1, lon1),
-                new NominatimLocation(lat2, lon2)
-        );
+        List<NominatimLocation> locations =
+                List.of(new NominatimLocation(lat1, lon1), new NominatimLocation(lat2, lon2));
 
-        mockWebServer.enqueue(new MockResponse().newBuilder()
+        mockWebServer.enqueue(new MockResponse()
+                .newBuilder()
                 .body(objectMapper.writeValueAsString(locations))
                 .addHeader("Content-Type", "application/json")
-                .build()
-        );
+                .build());
 
         Flux<NominatimLocation> locationFlux = nominatimClient.search("Lida", "json");
         StepVerifier.create(locationFlux)
@@ -70,27 +67,22 @@ public class NominatimClientTests {
     void returnNothing_whenLocationNotFound() throws IOException {
         List<NominatimLocation> locations = List.of();
 
-        mockWebServer.enqueue(new MockResponse().newBuilder()
+        mockWebServer.enqueue(new MockResponse()
+                .newBuilder()
                 .body(objectMapper.writeValueAsString(locations))
                 .addHeader("Content-Type", "application/json")
-                .build()
-        );
+                .build());
 
         Flux<NominatimLocation> locationFlux = nominatimClient.search("Non-existent", "json");
-        StepVerifier.create(locationFlux)
-                .expectNextCount(0)
-                .verifyComplete();
+        StepVerifier.create(locationFlux).expectNextCount(0).verifyComplete();
     }
 
     @Test
     void throwException_whenSearchFailed() {
         String message = "Internal Server Error";
 
-        mockWebServer.enqueue(new MockResponse().newBuilder()
-                .code(500)
-                .body(message)
-                .build()
-        );
+        mockWebServer.enqueue(
+                new MockResponse().newBuilder().code(500).body(message).build());
 
         Flux<NominatimLocation> locationFlux = nominatimClient.search("Lida", "json");
         StepVerifier.create(locationFlux)

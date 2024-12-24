@@ -10,6 +10,6 @@ import reactor.core.publisher.Flux;
 public interface NominatimClient {
 
     @GetExchange("/search")
-    Flux<NominatimLocation> search(@RequestParam("q") String query,
-                                   @RequestParam(value = "format", defaultValue = "jsonv2") String format);
+    Flux<NominatimLocation> search(
+            @RequestParam("q") String query, @RequestParam(value = "format", defaultValue = "jsonv2") String format);
 }

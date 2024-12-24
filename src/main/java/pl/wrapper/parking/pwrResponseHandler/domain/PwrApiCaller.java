@@ -1,5 +1,8 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
@@ -9,19 +12,15 @@ import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Mono;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-
 @Component
 @RequiredArgsConstructor
 public final class PwrApiCaller {
 
-
     private final WebClient webClient;
 
     public Mono<List<ParkingResponse>> fetchParkingPlaces() {
-        return webClient.post()
+        return webClient
+                .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(createDummyMap())
                 .retrieve()
@@ -45,11 +44,11 @@ public final class PwrApiCaller {
     private static List<ParkingResponse> parseResponse(Object unparsedResponse) throws ClassCastException {
         List<ParkingResponse> returnList = new ArrayList<>();
         ArrayList<Object> firstTierCastList = (ArrayList<Object>) unparsedResponse;
-        for(Object currentParkingPrecast : firstTierCastList) {
+        for (Object currentParkingPrecast : firstTierCastList) {
             LinkedHashMap<String, String> currentParking;
-            try{
-                 currentParking = (LinkedHashMap<String, String>) currentParkingPrecast;
-            }catch(ClassCastException e){
+            try {
+                currentParking = (LinkedHashMap<String, String>) currentParkingPrecast;
+            } catch (ClassCastException e) {
                 continue;
             }
             ParkingResponse currentResponse = ParkingResponse.builder()
@@ -60,21 +59,18 @@ public final class PwrApiCaller {
                     .openingHours(PwrApiCaller.getParsedTime(currentParking.get("open_hour")))
                     .closingHours(PwrApiCaller.getParsedTime(currentParking.get("close_hour")))
                     .totalSpots(Integer.parseInt(currentParking.getOrDefault("places", "0")))
-                    .address(
-                            new Address(
-                                    currentParking.getOrDefault("address", "unknown").strip(),
-                                    Float.parseFloat(currentParking.get("geo_lat")),
-                                    Float.parseFloat(currentParking.get("geo_lan"))
-                            )
-                    )
+                    .address(new Address(
+                            currentParking.getOrDefault("address", "unknown").strip(),
+                            Float.parseFloat(currentParking.get("geo_lat")),
+                            Float.parseFloat(currentParking.get("geo_lan"))))
                     .build();
             returnList.add(currentResponse);
         }
         return returnList;
     }
 
-    private static LocalTime getParsedTime(@Nullable String time){
-        if(time == null) return null;
+    private static LocalTime getParsedTime(@Nullable String time) {
+        if (time == null) return null;
 
         return LocalTime.parse(time, DateTimeFormatter.ISO_LOCAL_TIME);
     }

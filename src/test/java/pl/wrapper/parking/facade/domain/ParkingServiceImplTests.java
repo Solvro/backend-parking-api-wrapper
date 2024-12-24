@@ -1,29 +1,28 @@
 package pl.wrapper.parking.facade.domain;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
+import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
-
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ParkingServiceImplTests {
@@ -39,7 +38,6 @@ public class ParkingServiceImplTests {
     private List<ParkingResponse> parkings;
     private List<ParkingResponse> parkingData;
 
-
     @BeforeEach
     void setUp() {
         parkings = List.of(
@@ -54,8 +52,7 @@ public class ParkingServiceImplTests {
                         .name("Parking 2")
                         .symbol("P2")
                         .address(new Address("street 2", -44.4f, 123.6f))
-                        .build()
-        );
+                        .build());
         parkingData = List.of(
                 ParkingResponse.builder()
                         .parkingId(1)
@@ -88,8 +85,7 @@ public class ParkingServiceImplTests {
                         .freeSpots(51)
                         .openingHours(null)
                         .closingHours(null)
-                        .build()
-        );
+                        .build());
     }
 
     @Test
@@ -175,7 +171,6 @@ public class ParkingServiceImplTests {
         assertEquals(2, result.size());
         assertTrue(result.stream().allMatch(parking -> parking.freeSpots() > 0 && !parking.isOpened()));
     }
-
 
     @Test
     void getParkingWithTheMostFreeSpacesFromAll_shouldReturnSuccessResult() {

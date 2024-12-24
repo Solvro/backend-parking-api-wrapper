@@ -1,6 +1,14 @@
 package pl.wrapper.parking.facade.domain;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,21 +17,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
+import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -56,8 +55,7 @@ public class ParkingControllerIT {
                         .name("Parking 2")
                         .symbol("P2")
                         .address(new Address("street 2", -44.4f, 123.6f))
-                        .build()
-        );
+                        .build());
     }
 
     @Test
@@ -68,9 +66,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings/address")
-                        .queryParam("address", address)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingId", is(1)))
                 .andExpect(jsonPath("$.name", is("Parking 1")))
@@ -83,9 +79,7 @@ public class ParkingControllerIT {
         String address = "non-existent address";
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.empty());
 
-        mockMvc.perform(get("/parkings/address")
-                        .queryParam("address", address)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
 
@@ -99,9 +93,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/parkings/address")
-                        .queryParam("address", address)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
@@ -110,8 +102,7 @@ public class ParkingControllerIT {
     public void getParkingByParams_returnAllParkings_whenNoParamsGiven() throws Exception {
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(parkings)));
     }
