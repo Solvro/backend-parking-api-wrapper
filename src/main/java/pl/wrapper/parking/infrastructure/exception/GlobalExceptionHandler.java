@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.serializer.support.SerializationFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,7 +26,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NominatimClientException.class)
-    public ResponseEntity<ErrorWrapper> handleNominatimClientException(NominatimClientException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handleNominatimClientException(
+            NominatimClientException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
         String message = ex.getMessage();
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
@@ -43,7 +45,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(PwrApiNotRespondingException.class)
-    public ResponseEntity<ErrorWrapper> handlePwrApiNotRespondingException(PwrApiNotRespondingException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handlePwrApiNotRespondingException(
+            PwrApiNotRespondingException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
         String message = "PWR Api not responding";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
@@ -52,7 +55,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(JsonProcessingException.class)
-    public ResponseEntity<ErrorWrapper> handleJsonProcessingException(JsonProcessingException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handleJsonProcessingException(
+            JsonProcessingException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "Json processing error";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
@@ -69,7 +73,16 @@ class GlobalExceptionHandler {
         return new ResponseEntity<>(errorWrapper, status);
     }
 
-    private <T extends Exception> void logError(String message, String uri, T e){
+    @ExceptionHandler(SerializationFailedException.class)
+    public ResponseEntity<ErrorWrapper> handleClassCastException(
+            SerializationFailedException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorWrapper errorWrapper = new ErrorWrapper(e.getMessage(), status, request.getRequestURI(), status);
+        logError(e.getMessage(), request.getRequestURI(), e);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    private <T extends Exception> void logError(String message, String uri, T e) {
         log.error("{} at uri: {}; Details: {}", message, uri, e.getMessage());
     }
 }
