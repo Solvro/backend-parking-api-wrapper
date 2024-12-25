@@ -1,71 +1,71 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.File;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-
 class ParkingEndpointRepositoryTest {
 
-    private InMemoryRepository<Integer, DummyObject> inMemoryRepository;
+    private InMemoryRepositoryTest inMemoryRepository;
     private Integer id;
     private DummyObject object;
-    private final static String path = "data/statistics/tests";
+    private static final String path = "data/statistics/tests";
+
+    static class InMemoryRepositoryTest extends ParkingDataRepository {
+        public InMemoryRepositoryTest() {
+            super(path);
+        }
+
+        public void testSerialize() {
+            periodicSerialize();
+        }
+
+        public void testDeserialize() {
+            init();
+        }
+
+        public void deleteData() {
+            dataMap.clear();
+        }
+    }
 
     @BeforeEach
     void setUp() {
-        inMemoryRepository = new ParkingEndpointRepository(path);
+        inMemoryRepository = new InMemoryRepositoryTest();
         object = new DummyObject();
         id = 10;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @AfterEach
     void tearDown() {
         File file = new File(path);
-        assert file.delete();
+        file.delete();
     }
 
     @Test
-    void shouldReturnObject(){
-        inMemoryRepository.add(id,object);
+    void shouldReturnObject() {
+        inMemoryRepository.add(id, object);
 
-        int first = inMemoryRepository.fetch().stream().findFirst().orElseThrow();
+        int first = inMemoryRepository.fetchAllKeys().stream().findFirst().orElseThrow();
 
         assertEquals(first, id);
-
         assertEquals(inMemoryRepository.get(first), object);
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void shouldSerializationCircleRunCorrectly() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
-        inMemoryRepository.add(id,object);
+    void shouldSerializationRunCorrectly() {
+        inMemoryRepository.add(id, object);
 
-        Method selfSerialize = inMemoryRepository.getClass().getSuperclass().getDeclaredMethod("selfSerialize");
-        selfSerialize.setAccessible(true);
+        inMemoryRepository.testSerialize();
+        inMemoryRepository.deleteData();
 
-        Method selfDeserialize = inMemoryRepository.getClass().getSuperclass().getDeclaredMethod("init");
-        selfDeserialize.setAccessible(true);
+        assertTrue(inMemoryRepository.fetchAllKeys().isEmpty());
 
-        Field dataMap = inMemoryRepository.getClass().getSuperclass().getDeclaredField("dataMap");
-        dataMap.setAccessible(true);
-        Map<Integer, DummyObject> realMap = (Map<Integer, DummyObject>) dataMap.get(inMemoryRepository);
-
-        selfSerialize.invoke(inMemoryRepository);
-        realMap.clear();
-
-        assertTrue(inMemoryRepository.fetch().isEmpty());
-
-        selfDeserialize.invoke(inMemoryRepository);
-        assertEquals(inMemoryRepository.get(id).s,object.s);
+        inMemoryRepository.testDeserialize();
+        assertEquals(inMemoryRepository.get(id).s, object.s);
     }
 }

@@ -25,16 +25,17 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
 
     @Override
     public void add(K key, V value) {
-        if (key == null || value == null)
-            throw new IllegalArgumentException(
-                    "Key and value cannot be null in: " + InMemoryRepositoryImpl.class.getSimpleName());
-
         dataMap.put(key, value);
     }
 
     @Override
-    public Set<K> fetch() {
+    public Set<K> fetchAllKeys() {
         return Collections.unmodifiableSet(dataMap.keySet());
+    }
+
+    @Override
+    public Set<Map.Entry<K, V>> fetchAllEntries() {
+        return dataMap.entrySet();
     }
 
     @Override
@@ -45,6 +46,8 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
     @PostConstruct
     @SuppressWarnings("unchecked")
     protected void init() {
+        if (!file.exists()) return;
+
         try (FileInputStream fileOut = new FileInputStream(file);
                 ObjectInputStream in = new ObjectInputStream(fileOut)) {
 
@@ -72,7 +75,7 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
     }
 
     @Scheduled(fixedRateString = "#{60 * 100 * ${serialization.timeStamp.inMinutes}}")
-    private void periodicSerialize() {
+    protected void periodicSerialize() {
         selfSerialize();
     }
 
