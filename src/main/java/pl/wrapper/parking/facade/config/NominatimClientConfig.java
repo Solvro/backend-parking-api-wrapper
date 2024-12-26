@@ -21,12 +21,11 @@ public class NominatimClientConfig {
     public NominatimClient nominatimClient() {
         WebClient webClient = WebClient.builder()
                 .baseUrl(mapsUrl)
-                .defaultStatusHandler(HttpStatusCode::isError,
-                        resp -> resp.bodyToMono(String.class)
-                                .flatMap(body -> Mono.error(new NominatimClientException(body))))
+                .defaultStatusHandler(HttpStatusCode::isError, resp -> resp.bodyToMono(String.class)
+                        .flatMap(body -> Mono.error(new NominatimClientException(body))))
                 .build();
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory
-                .builderFor(WebClientAdapter.create(webClient)).build();
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
+                .build();
 
         return factory.createClient(NominatimClient.class);
     }

@@ -1,5 +1,14 @@
 package pl.wrapper.parking.facade.domain;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.time.LocalTime;
+import java.util.List;
 import org.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,16 +22,6 @@ import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
-import java.time.LocalTime;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(ParkingController.class)
 public class ParkingControllerTests {
@@ -68,8 +67,7 @@ public class ParkingControllerTests {
                         .freeSpots(51)
                         .openingHours(null)
                         .closingHours(null)
-                        .build()
-        );
+                        .build());
     }
 
     @Test
@@ -83,14 +81,14 @@ public class ParkingControllerTests {
                 .build();
         when(parkingService.getClosestParking(address)).thenReturn(Result.success(parking));
 
-        mockMvc.perform(get("/parkings/address")
-                        .queryParam("address", address)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingId", is(parking.parkingId())))
                 .andExpect(jsonPath("$.name", is(parking.name())))
-                .andExpect(jsonPath("$.address.geoLatitude").value(parking.address().geoLatitude()))
-                .andExpect(jsonPath("$.address.geoLongitude").value(parking.address().geoLongitude()));
+                .andExpect(jsonPath("$.address.geoLatitude")
+                        .value(parking.address().geoLatitude()))
+                .andExpect(jsonPath("$.address.geoLongitude")
+                        .value(parking.address().geoLongitude()));
     }
 
     @Test
@@ -99,24 +97,22 @@ public class ParkingControllerTests {
         ParkingError.ParkingNotFoundByAddress error = new ParkingError.ParkingNotFoundByAddress(address);
         when(parkingService.getClosestParking(address)).thenReturn(Result.failure(error));
 
-        mockMvc.perform(get("/parkings/address")
-                        .queryParam("address", address)
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
-
 
     @Test()
     void getAllParkingsWithFreeSpots_shouldReturnListOfParking() throws Exception {
         List<ParkingResponse> serviceResponse = List.of(parkingData.get(1), parkingData.get(2), parkingData.get(3));
         when(parkingService.getAllWithFreeSpots(null)).thenReturn(serviceResponse);
 
-        String jsonResponse = mockMvc.perform(get("/parkings/all-with-free-spots")
-                        .accept(MediaType.APPLICATION_JSON))
+        String jsonResponse = mockMvc.perform(
+                        get("/parkings/all-with-free-spots").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse().getContentAsString();
+                .getResponse()
+                .getContentAsString();
 
         JSONArray jsonArray = new JSONArray(jsonResponse);
 
@@ -136,7 +132,8 @@ public class ParkingControllerTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse().getContentAsString();
+                .getResponse()
+                .getContentAsString();
 
         JSONArray jsonArray = new JSONArray(jsonResponse);
 
@@ -156,7 +153,8 @@ public class ParkingControllerTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse().getContentAsString();
+                .getResponse()
+                .getContentAsString();
 
         JSONArray jsonArray = new JSONArray(jsonResponse);
         assertEquals(0, jsonArray.length());
@@ -172,7 +170,8 @@ public class ParkingControllerTests {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
-                .getResponse().getContentAsString();
+                .getResponse()
+                .getContentAsString();
 
         JSONArray jsonArray = new JSONArray(jsonResponse);
 
@@ -182,14 +181,12 @@ public class ParkingControllerTests {
         }
     }
 
-
     @Test
     void getParkingWithTheMostFreeSpacesFromAll_shouldReturnParking() throws Exception {
         Result<ParkingResponse> serviceResponse = Result.success(parkingData.get(1));
         when(parkingService.getWithTheMostFreeSpots(null)).thenReturn(serviceResponse);
 
-        mockMvc.perform(get("/parkings/most-free-spots")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/most-free-spots").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.freeSpots").value(325))
                 .andExpect(jsonPath("$.symbol").value("P2"));
