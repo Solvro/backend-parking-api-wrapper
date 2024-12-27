@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.client;
+package pl.wrapper.parking.infrastructure.nominatim.client;
 
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;

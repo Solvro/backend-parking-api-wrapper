@@ -30,7 +30,7 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Parking API", description = "API for managing parking-related operations")
-class ParkingController {
+public class ParkingController {
     private final ParkingService parkingService;
 
     @Operation(summary = "get list of parking lots with free spots from all/opened/closed parking lots")

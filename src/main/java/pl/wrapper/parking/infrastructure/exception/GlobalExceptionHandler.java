@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.serializer.support.SerializationFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -69,6 +70,15 @@ class GlobalExceptionHandler {
         String message = "Class cast exception";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), e);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    @ExceptionHandler(SerializationFailedException.class)
+    public ResponseEntity<ErrorWrapper> handleClassCastException(
+            SerializationFailedException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+        ErrorWrapper errorWrapper = new ErrorWrapper(e.getMessage(), status, request.getRequestURI(), status);
+        logError(e.getMessage(), request.getRequestURI(), e);
         return new ResponseEntity<>(errorWrapper, status);
     }
 
