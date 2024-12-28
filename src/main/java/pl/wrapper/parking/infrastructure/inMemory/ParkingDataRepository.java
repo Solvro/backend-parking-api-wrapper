@@ -3,9 +3,10 @@ package pl.wrapper.parking.infrastructure.inMemory;
 import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
 
 @Component("parkingDataRepository")
-public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, DummyObject> { // <Key, value>
+public class ParkingDataRepository extends InMemoryRepositoryImpl<ParkingData.CompositeKey, ParkingData> {
 
     public ParkingDataRepository(@Value("${serialization.location.parkingData}") String saveToLocationPath) {
         super(

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.wrapper.parking.facade.domain.ParkingController;
 import pl.wrapper.parking.facade.domain.ParkingServiceImpl;
+import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
@@ -46,8 +47,8 @@ class ResultTest {
 
         Integer status = mvcResult.getResponse().getStatus(); // get response status
 
-        Integer OkStatus = 200;
-        assertEquals(status, OkStatus); // check status
+        Integer okStatus = 200;
+        assertEquals(okStatus, status); // check status
     }
 
     @Test
@@ -57,7 +58,7 @@ class ResultTest {
         PwrApiCaller apiCaller = Mockito.mock(PwrApiCaller.class);
         Mockito.when(apiCaller.fetchParkingPlaces()).thenReturn(Mono.error(provided)); // simulate response
 
-        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller);
+        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller, new ParkingDataRepository("data"));
         Exception e = assertThrows(provided.getClass(), pwrApiServerCaller::fetchData); // check error class
 
         assertEquals(provided.getMessage(), e.getMessage()); // check error message
