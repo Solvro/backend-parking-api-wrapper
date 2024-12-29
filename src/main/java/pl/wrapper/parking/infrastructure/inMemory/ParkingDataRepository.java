@@ -1,6 +1,7 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,10 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<ParkingData.Co
     @Autowired
     public void setPwrApiServerCaller(PwrApiServerCaller pwrApiServerCaller) {
         this.pwrApiServerCaller = pwrApiServerCaller;
+    }
+
+    public Collection<ParkingData> values() {
+        return dataMap.values();
     }
 
     @Scheduled(fixedRateString = "${pwr-api.data-fetch.minutes}", timeUnit = TimeUnit.MINUTES)

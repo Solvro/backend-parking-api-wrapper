@@ -22,7 +22,7 @@ import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 @WebMvcTest(ParkingController.class)
-@ComponentScan(basePackageClasses = ParkingService.class)
+@ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade"})
 public class ParkingServiceTests {
 
     @Autowired
