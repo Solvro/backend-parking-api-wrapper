@@ -21,12 +21,13 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 @Service
 @Slf4j
-public record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient, ParkingDataRepository dataRepository)
+public record ParkingServiceImpl(
+        PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient, ParkingDataRepository dataRepository)
         implements ParkingService {
 
     @Override
     public Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalDateTime start, LocalDateTime end) {
-        if(!getById(parkingId, null).isSuccess())
+        if (!getById(parkingId, null).isSuccess())
             return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
 
         List<ParkingData> dataList = dataRepository.values().stream()
@@ -35,10 +36,12 @@ public record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, Nominati
         long totalUsage = dataList.stream()
                 .mapToLong(data -> data.totalSpots() - data.freeSpots())
                 .sum();
-        double averageAvailability = round(dataList.stream()
-                .mapToDouble(data -> (double) data.freeSpots() / data.totalSpots())
-                .average()
-                .orElse(0.0), 3);
+        double averageAvailability = round(
+                dataList.stream()
+                        .mapToDouble(data -> (double) data.freeSpots() / data.totalSpots())
+                        .average()
+                        .orElse(0.0),
+                3);
         LocalDateTime peakOccupancyAt = dataList.stream()
                 .min(Comparator.comparingDouble(data -> (double) data.freeSpots() / data.totalSpots()))
                 .map(ParkingData::timestamp)
@@ -163,22 +166,18 @@ public record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, Nominati
         return predicate;
     }
 
-    private Predicate<ParkingData> generatePredicateForParams(Integer parkingId, LocalDateTime start, LocalDateTime end) {
+    private Predicate<ParkingData> generatePredicateForParams(
+            Integer parkingId, LocalDateTime start, LocalDateTime end) {
         Predicate<ParkingData> predicate = data -> true;
-        if(parkingId != null)
-            predicate = predicate.and(data -> Objects.equals(data.parkingId(), parkingId));
-        if(start != null)
-            predicate = predicate.and(data -> !data.timestamp().isBefore(start));
-        if(end != null)
-            predicate = predicate.and(data -> !data.timestamp().isAfter(end));
+        if (parkingId != null) predicate = predicate.and(data -> Objects.equals(data.parkingId(), parkingId));
+        if (start != null) predicate = predicate.and(data -> !data.timestamp().isBefore(start));
+        if (end != null) predicate = predicate.and(data -> !data.timestamp().isAfter(end));
 
         return predicate;
     }
 
     private static double round(double value, int places) {
-        if(places < 0) throw new IllegalArgumentException();
-        return BigDecimal.valueOf(value)
-                .setScale(places, RoundingMode.HALF_UP)
-                .doubleValue();
+        if (places < 0) throw new IllegalArgumentException();
+        return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).doubleValue();
     }
 }

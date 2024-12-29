@@ -38,16 +38,19 @@ public class ParkingController {
 
     @GetMapping(path = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getParkingStats(
-            @RequestParam(name = "id", required = false)
-            Integer parkingId,
+            @RequestParam(name = "id", required = false) Integer parkingId,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, fallbackPatterns = "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(name = "start_timestamp", required = false)
-            LocalDateTime start,
+                    @RequestParam(name = "start_timestamp", required = false)
+                    LocalDateTime start,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, fallbackPatterns = "yyyy-MM-dd HH:mm:ss")
-            @RequestParam(name = "end_timestamp", required = false)
-            LocalDateTime end,
+                    @RequestParam(name = "end_timestamp", required = false)
+                    LocalDateTime end,
             HttpServletRequest request) {
-        log.info("Fetching parking stats with parameters: id = {}, start_timestamp = {}, end_timestamp = {}", parkingId, start, end);
+        log.info(
+                "Fetching parking stats with parameters: id = {}, start_timestamp = {}, end_timestamp = {}",
+                parkingId,
+                start,
+                end);
         Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, start, end);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }

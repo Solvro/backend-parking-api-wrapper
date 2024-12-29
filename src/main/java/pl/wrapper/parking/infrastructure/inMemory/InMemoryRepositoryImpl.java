@@ -66,7 +66,7 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
                         "Failed to create directory for path: " + file.getAbsolutePath());
 
         try (FileOutputStream fileOut = new FileOutputStream(file);
-             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+                ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
 
             out.writeObject(dataMap);
         } catch (IOException e) {

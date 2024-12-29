@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,10 +19,7 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<ParkingData.Co
     private PwrApiServerCaller pwrApiServerCaller;
 
     public ParkingDataRepository(@Value("${serialization.location.parkingData}") String saveToLocationPath) {
-        super(
-                saveToLocationPath,
-                new HashMap<>(),
-                null);
+        super(saveToLocationPath, new HashMap<>(), null);
     }
 
     @Autowired
@@ -39,9 +35,7 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<ParkingData.Co
     private void handleData() {
         List<ParkingResponse> parkings = pwrApiServerCaller.fetchData();
         parkings.stream()
-                .map(p ->
-                        new ParkingData(p.parkingId(), p.freeSpots(), p.totalSpots(), LocalDateTime.now()))
-                .forEach(data ->
-                        add(new ParkingData.CompositeKey(data.parkingId(), data.timestamp()), data));
+                .map(p -> new ParkingData(p.parkingId(), p.freeSpots(), p.totalSpots(), LocalDateTime.now()))
+                .forEach(data -> add(new ParkingData.CompositeKey(data.parkingId(), data.timestamp()), data));
     }
 }
