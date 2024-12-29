@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingService;
+import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
@@ -32,6 +33,17 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 @Tag(name = "Parking API", description = "API for managing parking-related operations")
 public class ParkingController {
     private final ParkingService parkingService;
+
+    @GetMapping(path = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getParkingStats(
+            @RequestParam(name = "id", required = false) Integer parkingId,
+            @RequestParam(name = "start_timestamp", required = false) String start,
+            @RequestParam(name = "end_timestamp", required = false) String end,
+            HttpServletRequest request) {
+        log.info("Fetching parking stats with parameters: id = {}, start = {}, end = {}", parkingId, start, end);
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, start, end);
+        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    }
 
     @Operation(summary = "get list of parking lots with free spots from all/opened/closed parking lots")
     @ApiResponse(

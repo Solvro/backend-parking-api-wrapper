@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import pl.wrapper.parking.facade.domain.ParkingController;
 import pl.wrapper.parking.facade.domain.ParkingServiceImpl;
-import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiCaller;
 import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
@@ -58,7 +57,7 @@ class ResultTest {
         PwrApiCaller apiCaller = Mockito.mock(PwrApiCaller.class);
         Mockito.when(apiCaller.fetchParkingPlaces()).thenReturn(Mono.error(provided)); // simulate response
 
-        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller, new ParkingDataRepository("data"));
+        PwrApiServerCaller pwrApiServerCaller = new PwrApiServerCallerImpl(apiCaller);
         Exception e = assertThrows(provided.getClass(), pwrApiServerCaller::fetchData); // check error class
 
         assertEquals(provided.getMessage(), e.getMessage()); // check error message

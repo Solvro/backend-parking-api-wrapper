@@ -2,10 +2,13 @@ package pl.wrapper.parking.facade;
 
 import java.util.List;
 import org.springframework.lang.Nullable;
+import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 public interface ParkingService {
+    Result<ParkingStatsResponse> getParkingStats(Integer parkingId, String start, String end);
+
     List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened);
 
     Result<ParkingResponse> getWithTheMostFreeSpots(@Nullable Boolean opened);
