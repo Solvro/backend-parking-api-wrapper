@@ -1,6 +1,7 @@
 package pl.wrapper.parking.facade;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import org.springframework.lang.Nullable;
 import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
@@ -9,6 +10,8 @@ import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 public interface ParkingService {
     Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalDateTime start, LocalDateTime end);
+
+    Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalTime start, LocalTime end);
 
     List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened);
 

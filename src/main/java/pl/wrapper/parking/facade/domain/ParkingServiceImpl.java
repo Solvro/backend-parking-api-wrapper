@@ -3,6 +3,7 @@ package pl.wrapper.parking.facade.domain;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -33,21 +34,20 @@ public record ParkingServiceImpl(
         List<ParkingData> dataList = dataRepository.values().stream()
                 .filter(generatePredicateForParams(parkingId, start, end))
                 .toList();
-        long totalUsage = dataList.stream()
-                .mapToLong(data -> data.totalSpots() - data.freeSpots())
-                .sum();
-        double averageAvailability = round(
-                dataList.stream()
-                        .mapToDouble(data -> (double) data.freeSpots() / data.totalSpots())
-                        .average()
-                        .orElse(0.0),
-                3);
-        LocalDateTime peakOccupancyAt = dataList.stream()
-                .min(Comparator.comparingDouble(data -> (double) data.freeSpots() / data.totalSpots()))
-                .map(ParkingData::timestamp)
-                .orElse(null);
 
-        return Result.success(new ParkingStatsResponse(totalUsage, averageAvailability, peakOccupancyAt));
+        return Result.success(calculateStats(dataList));
+    }
+
+    @Override
+    public Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalTime start, LocalTime end) {
+        if (!getById(parkingId, null).isSuccess())
+            return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
+
+        List<ParkingData> dataList = dataRepository.values().stream()
+                .filter(generatePredicateForParams(parkingId, start, end))
+                .toList();
+
+        return Result.success(calculateStats(dataList));
     }
 
     @Override
@@ -176,8 +176,32 @@ public record ParkingServiceImpl(
         return predicate;
     }
 
-    private static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-        return BigDecimal.valueOf(value).setScale(places, RoundingMode.HALF_UP).doubleValue();
+    private Predicate<ParkingData> generatePredicateForParams(Integer parkingId, LocalTime start, LocalTime end) {
+        Predicate<ParkingData> predicate = data -> true;
+        if (parkingId != null) predicate = predicate.and(data -> Objects.equals(data.parkingId(), parkingId));
+        if (start != null)
+            predicate = predicate.and(data -> !data.timestamp().toLocalTime().isBefore(start));
+        if (end != null)
+            predicate = predicate.and(data -> !data.timestamp().toLocalTime().isAfter(end));
+
+        return predicate;
+    }
+
+    private static ParkingStatsResponse calculateStats(List<ParkingData> dataList) {
+        long totalUsage = dataList.stream()
+                .mapToLong(data -> data.totalSpots() - data.freeSpots())
+                .sum();
+        double averageAvailability = dataList.stream()
+                .mapToDouble(data -> (double) data.freeSpots() / data.totalSpots())
+                .average()
+                .orElse(0.0);
+        averageAvailability = BigDecimal.valueOf(averageAvailability)
+                .setScale(3, RoundingMode.HALF_UP)
+                .doubleValue();
+        LocalDateTime peakOccupancyAt = dataList.stream()
+                .min(Comparator.comparingDouble(data -> (double) data.freeSpots() / data.totalSpots()))
+                .map(ParkingData::timestamp)
+                .orElse(null);
+        return new ParkingStatsResponse(totalUsage, averageAvailability, peakOccupancyAt);
     }
 }

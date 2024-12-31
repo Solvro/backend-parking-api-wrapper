@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +50,41 @@ public class ParkingController {
             HttpServletRequest request) {
         log.info(
                 "Fetching parking stats with parameters: id = {}, start_timestamp = {}, end_timestamp = {}",
+                parkingId,
+                start,
+                end);
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, start, end);
+        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    }
+
+    @GetMapping(path = "/stats/date", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getParkingStats(
+            @RequestParam(name = "id", required = false) Integer parkingId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(name = "start_date", required = false)
+                    LocalDate start,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(name = "end_date", required = false)
+                    LocalDate end,
+            HttpServletRequest request) {
+        log.info(
+                "Fetching parking stats with parameters: id = {}, start_date = {}, end_date = {}",
+                parkingId,
+                start,
+                end);
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(
+                parkingId, start != null ? start.atStartOfDay() : null, end != null ? end.atTime(23, 59, 59) : null);
+        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    }
+
+    @GetMapping(path = "/stats/time", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getParkingStats(
+            @RequestParam(name = "id", required = false) Integer parkingId,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "start_time", required = false)
+                    LocalTime start,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "end_time", required = false)
+                    LocalTime end,
+            HttpServletRequest request) {
+        log.info(
+                "Fetching parking stats with parameters: id = {}, start_time = {}, end_time = {}",
                 parkingId,
                 start,
                 end);
