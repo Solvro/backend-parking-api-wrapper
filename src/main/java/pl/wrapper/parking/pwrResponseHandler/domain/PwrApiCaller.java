@@ -51,14 +51,16 @@ public final class PwrApiCaller {
             } catch (ClassCastException e) {
                 continue;
             }
+            int boundlessFreeSpots = Integer.parseInt(currentParking.getOrDefault("liczba_miejsc", "0"));
+            int totalSpots = Integer.parseInt(currentParking.getOrDefault("places", "0"));
             ParkingResponse currentResponse = ParkingResponse.builder()
                     .parkingId(Integer.parseInt(currentParking.getOrDefault("id", "0")))
                     .name(currentParking.getOrDefault("nazwa", "unknown"))
-                    .freeSpots(Integer.parseInt(currentParking.getOrDefault("liczba_miejsc", "0")))
+                    .freeSpots(Math.max(0, Math.min(totalSpots, boundlessFreeSpots)))
                     .symbol(currentParking.getOrDefault("symbol", "unknown"))
                     .openingHours(PwrApiCaller.getParsedTime(currentParking.get("open_hour")))
                     .closingHours(PwrApiCaller.getParsedTime(currentParking.get("close_hour")))
-                    .totalSpots(Integer.parseInt(currentParking.getOrDefault("places", "0")))
+                    .totalSpots(totalSpots)
                     .address(new Address(
                             currentParking.getOrDefault("address", "unknown").strip(),
                             Float.parseFloat(currentParking.get("geo_lat")),
