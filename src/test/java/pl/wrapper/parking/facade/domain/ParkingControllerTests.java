@@ -7,7 +7,10 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.json.JSONArray;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.wrapper.parking.facade.ParkingService;
+import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
@@ -216,6 +220,118 @@ public class ParkingControllerTests {
         when(parkingService.getWithTheMostFreeSpots(false)).thenReturn(serviceResponse);
 
         mockMvc.perform(get("/parkings/free/top").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.errorMessage", anything()));
+    }
+
+    @Test
+    void getParkingStats_withValidParkingIdAndDateTimeRange_returnParkingStatsForParkingWithinRange() throws Exception {
+        int parkingId = 1;
+        LocalDateTime start = LocalDateTime.of(2024, 12, 7, 15, 45);
+        LocalDateTime end = LocalDateTime.of(2025, 1, 19, 4, 0);
+        ParkingStatsResponse stats = new ParkingStatsResponse(21L, 0.35, LocalDateTime.now());
+        when(parkingService.getParkingStats(parkingId, start, end)).thenReturn(Result.success(stats));
+
+        mockMvc.perform(get("/parkings/stats")
+                        .queryParam("id", String.valueOf(parkingId))
+                        .queryParam("start_timestamp", start.toString())
+                        .queryParam("end_timestamp", end.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsage").value(stats.totalUsage()))
+                .andExpect(jsonPath("$.averageAvailability").value(stats.averageAvailability()))
+                .andExpect(jsonPath("$.peakOccupancyAt")
+                        .value(DateTimeFormatter.ISO_DATE_TIME.format(stats.peakOccupancyAt())));
+    }
+
+    @Test
+    void getParkingStats_withIncorrectDateTimeRangeAndNoParkingId_returnNullParkingStats() throws Exception {
+        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
+        LocalDateTime end = LocalDateTime.of(2024, 1, 1, 0, 0);
+        when(parkingService.getParkingStats(null, start, end))
+                .thenReturn(Result.success(new ParkingStatsResponse(0L, 0.0, null)));
+
+        mockMvc.perform(get("/parkings/stats")
+                        .queryParam("start_timestamp", start.toString())
+                        .queryParam("end_timestamp", end.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsage").value(0L))
+                .andExpect(jsonPath("$.averageAvailability").value(0.0))
+                .andExpect(jsonPath("$.peakOccupancyAt").doesNotExist());
+    }
+
+    @Test
+    void getParkingStats_withValidDateRangeAndNoParkingId_returnParkingStatsWithinRange() throws Exception {
+        LocalDate start = LocalDate.of(2024, 12, 7);
+        LocalDate end = LocalDate.of(2025, 1, 19);
+        ParkingStatsResponse stats = new ParkingStatsResponse(21L, 0.35, LocalDateTime.now());
+        when(parkingService.getParkingStats(null, start.atStartOfDay(), end.atTime(23, 59, 59)))
+                .thenReturn(Result.success(stats));
+
+        mockMvc.perform(get("/parkings/stats/date")
+                        .queryParam("start_date", start.toString())
+                        .queryParam("end_date", end.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsage").value(stats.totalUsage()))
+                .andExpect(jsonPath("$.averageAvailability").value(stats.averageAvailability()))
+                .andExpect(jsonPath("$.peakOccupancyAt")
+                        .value(DateTimeFormatter.ISO_DATE_TIME.format(stats.peakOccupancyAt())));
+    }
+
+    @Test
+    void getParkingStats_withValidParkingIdAndTimeRange_returnParkingStatsForParkingWithinRange() throws Exception {
+        int parkingId = 1;
+        LocalTime start = LocalTime.of(8, 0);
+        LocalTime end = LocalTime.of(18, 0);
+        ParkingStatsResponse stats = new ParkingStatsResponse(21L, 0.35, LocalDateTime.now());
+        when(parkingService.getParkingStats(parkingId, start, end)).thenReturn(Result.success(stats));
+
+        mockMvc.perform(get("/parkings/stats/time")
+                        .queryParam("id", String.valueOf(parkingId))
+                        .queryParam("start_time", start.toString())
+                        .queryParam("end_time", end.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsage").value(stats.totalUsage()))
+                .andExpect(jsonPath("$.averageAvailability").value(stats.averageAvailability()))
+                .andExpect(jsonPath("$.peakOccupancyAt")
+                        .value(DateTimeFormatter.ISO_DATE_TIME.format(stats.peakOccupancyAt())));
+    }
+
+    @Test
+    void getParkingStats_withValidParkingIdAndStartTimeRange_returnParkingStatsForParkingFromStartTime()
+            throws Exception {
+        int parkingId = 1;
+        LocalTime start = LocalTime.of(8, 0);
+        ParkingStatsResponse stats = new ParkingStatsResponse(21L, 0.35, LocalDateTime.now());
+        when(parkingService.getParkingStats(parkingId, start, null)).thenReturn(Result.success(stats));
+
+        mockMvc.perform(get("/parkings/stats/time")
+                        .queryParam("id", String.valueOf(parkingId))
+                        .queryParam("start_time", start.toString())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.totalUsage").value(stats.totalUsage()))
+                .andExpect(jsonPath("$.averageAvailability").value(stats.averageAvailability()))
+                .andExpect(jsonPath("$.peakOccupancyAt")
+                        .value(DateTimeFormatter.ISO_DATE_TIME.format(stats.peakOccupancyAt())));
+    }
+
+    @Test
+    void getParkingStats_withIncorrectParkingIdAndTimeRange_returnNotFound() throws Exception {
+        int parkingId = -1;
+        LocalTime start = LocalTime.of(18, 0);
+        LocalTime end = LocalTime.of(8, 0);
+        when(parkingService.getParkingStats(parkingId, start, end))
+                .thenReturn(Result.failure(new ParkingError.ParkingNotFoundById(parkingId)));
+
+        mockMvc.perform(get("/parkings/stats/time")
+                        .queryParam("id", String.valueOf(parkingId))
+                        .queryParam("start_time", start.toString())
+                        .queryParam("end_time", end.toString())
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }

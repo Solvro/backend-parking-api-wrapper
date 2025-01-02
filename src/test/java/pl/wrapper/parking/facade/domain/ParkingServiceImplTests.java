@@ -294,7 +294,7 @@ public class ParkingServiceImplTests {
 
     @Test
     void getParkingStats_withValidStartDateTimeAndNoParkingId_returnStatsFromStartDateTime() {
-        LocalDateTime start = LocalDateTime.of(2024, 12, 1, 0,0);
+        LocalDateTime start = LocalDateTime.of(2024, 12, 1, 0, 0);
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
         when(dataRepository.values()).thenReturn(dataList);
 
@@ -310,7 +310,7 @@ public class ParkingServiceImplTests {
     @Test
     void getParkingStats_withValidEndDateTimeAndParkingId_returnStatsUpToEndDateTime() {
         int parkingId = 1;
-        LocalDateTime end = LocalDateTime.of(2025, 12, 1, 0,0);
+        LocalDateTime end = LocalDateTime.of(2025, 12, 1, 0, 0);
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
         when(dataRepository.values()).thenReturn(dataList);
 
