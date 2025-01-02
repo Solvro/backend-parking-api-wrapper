@@ -293,6 +293,39 @@ public class ParkingServiceImplTests {
     }
 
     @Test
+    void getParkingStats_withValidStartDateTimeAndNoParkingId_returnStatsFromStartDateTime() {
+        LocalDateTime start = LocalDateTime.of(2024, 12, 1, 0,0);
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
+        when(dataRepository.values()).thenReturn(dataList);
+
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(null, start, null);
+
+        assertTrue(result.isSuccess());
+        ParkingStatsResponse stats = result.getData();
+        assertEquals(31L, stats.totalUsage());
+        assertEquals(0.455, stats.averageAvailability(), 0.005);
+        assertEquals(dataList.get(1).timestamp(), stats.peakOccupancyAt());
+    }
+
+    @Test
+    void getParkingStats_withValidEndDateTimeAndParkingId_returnStatsUpToEndDateTime() {
+        int parkingId = 1;
+        LocalDateTime end = LocalDateTime.of(2025, 12, 1, 0,0);
+        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
+        when(dataRepository.values()).thenReturn(dataList);
+
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, null, end);
+
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getData())
+                .extracting(
+                        ParkingStatsResponse::totalUsage,
+                        ParkingStatsResponse::averageAvailability,
+                        ParkingStatsResponse::peakOccupancyAt)
+                .containsExactly(21L, 0.35, dataList.get(1).timestamp());
+    }
+
+    @Test
     void getParkingStats_withNoParkingIdAndDateTime_returnStatsForAllParkingsWithinWholeRange() {
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
         when(dataRepository.values()).thenReturn(dataList);
