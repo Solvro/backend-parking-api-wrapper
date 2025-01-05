@@ -44,6 +44,7 @@ public final class PwrApiCaller {
     private static List<ParkingResponse> parseResponse(Object unparsedResponse) throws ClassCastException {
         List<ParkingResponse> returnList = new ArrayList<>();
         ArrayList<Object> firstTierCastList = (ArrayList<Object>) unparsedResponse;
+        int maxId = Integer.MIN_VALUE;
         for (Object currentParkingPrecast : firstTierCastList) {
             LinkedHashMap<String, String> currentParking;
             try {
@@ -53,8 +54,10 @@ public final class PwrApiCaller {
             }
             int boundlessFreeSpots = Integer.parseInt(currentParking.getOrDefault("liczba_miejsc", "0"));
             int totalSpots = Integer.parseInt(currentParking.getOrDefault("places", "0"));
+            int parkingId = Integer.parseInt(currentParking.getOrDefault("id", "0"));
+            if (parkingId > maxId) maxId = parkingId;
             ParkingResponse currentResponse = ParkingResponse.builder()
-                    .parkingId(Integer.parseInt(currentParking.getOrDefault("id", "0")))
+                    .parkingId(parkingId)
                     .name(currentParking.getOrDefault("nazwa", "unknown"))
                     .freeSpots(Math.max(0, Math.min(totalSpots, boundlessFreeSpots)))
                     .symbol(currentParking.getOrDefault("symbol", "unknown"))
@@ -68,7 +71,27 @@ public final class PwrApiCaller {
                     .build();
             returnList.add(currentResponse);
         }
+        makeParkingIdUnique(returnList, maxId + 1);
         return returnList;
+    }
+
+    private static void makeParkingIdUnique(List<ParkingResponse> returnList, int nextId) {
+        for (int i = 0; i < returnList.size(); i++) {
+            ParkingResponse response = returnList.get(i);
+            if (response.parkingId() == 0) {
+                ParkingResponse updated = ParkingResponse.builder()
+                        .parkingId(nextId++)
+                        .name(response.name())
+                        .freeSpots(response.freeSpots())
+                        .symbol(response.symbol())
+                        .openingHours(response.openingHours())
+                        .closingHours(response.closingHours())
+                        .totalSpots(response.totalSpots())
+                        .address(response.address())
+                        .build();
+                returnList.set(i, updated);
+            }
+        }
     }
 
     private static LocalTime getParsedTime(@Nullable String time) {
