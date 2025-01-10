@@ -1,11 +1,11 @@
 package pl.wrapper.parking.infrastructure.inMemory.dto;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.Map;
 import lombok.Builder;
 
 @Builder
-public record ParkingData(int parkingId, int freeSpots, int totalSpots, LocalDateTime timestamp)
-        implements Serializable {
-    public record CompositeKey(int parkingId, LocalDateTime timestamp) implements Serializable {}
-}
+public record ParkingData(int totalSpots, Map<DayOfWeek, Map<LocalTime, AvailabilityData>> freeSpotsHistory)
+        implements Serializable {}

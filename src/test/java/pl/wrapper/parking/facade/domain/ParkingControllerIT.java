@@ -7,13 +7,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +19,6 @@ import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
-import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
@@ -50,7 +44,6 @@ public class ParkingControllerIT {
     private ParkingDataRepository dataRepository;
 
     private List<ParkingResponse> parkings;
-    private List<ParkingData> dataList;
 
     @BeforeEach
     void setUp() {
@@ -66,25 +59,6 @@ public class ParkingControllerIT {
                         .name("Parking 2")
                         .symbol("P2")
                         .address(new Address("street 2", -44.4f, 123.6f))
-                        .build());
-        dataList = List.of(
-                ParkingData.builder()
-                        .parkingId(1)
-                        .freeSpots(5)
-                        .totalSpots(10)
-                        .timestamp(LocalDateTime.of(2024, 12, 7, 15, 45))
-                        .build(),
-                ParkingData.builder()
-                        .parkingId(1)
-                        .freeSpots(4)
-                        .totalSpots(20)
-                        .timestamp(LocalDateTime.of(2025, 1, 1, 19, 23))
-                        .build(),
-                ParkingData.builder()
-                        .parkingId(2)
-                        .freeSpots(20)
-                        .totalSpots(30)
-                        .timestamp(LocalDateTime.of(2024, 12, 4, 23, 35))
                         .build());
     }
 
@@ -160,120 +134,5 @@ public class ParkingControllerIT {
                         .queryParam("name", "Non-existent name"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
-    }
-
-    @Test
-    void getParkingStats_withValidParkingIdAndDateTimeRange_returnParkingStatsForParkingWithinRange() throws Exception {
-        int parkingId = 1;
-        LocalDateTime start = LocalDateTime.of(2024, 12, 7, 15, 45);
-        LocalDateTime end = LocalDateTime.of(2025, 1, 19, 4, 0);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-        when(dataRepository.values()).thenReturn(dataList);
-
-        mockMvc.perform(get("/parkings/stats")
-                        .queryParam("id", String.valueOf(parkingId))
-                        .queryParam("start_timestamp", start.toString())
-                        .queryParam("end_timestamp", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsage").value(21L))
-                .andExpect(jsonPath("$.averageAvailability").value(0.35))
-                .andExpect(jsonPath("$.peakOccupancyAt")
-                        .value(DateTimeFormatter.ISO_DATE_TIME.format(
-                                dataList.get(1).timestamp())));
-    }
-
-    @Test
-    void getParkingStats_withIncorrectDateTimeRangeAndNoParkingId_returnNullParkingStats() throws Exception {
-        LocalDateTime start = LocalDateTime.of(2025, 1, 1, 0, 0);
-        LocalDateTime end = LocalDateTime.of(2024, 1, 1, 0, 0);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-        when(dataRepository.values()).thenReturn(dataList);
-
-        mockMvc.perform(get("/parkings/stats")
-                        .queryParam("start_timestamp", start.toString())
-                        .queryParam("end_timestamp", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsage").value(0L))
-                .andExpect(jsonPath("$.averageAvailability").value(0.0))
-                .andExpect(jsonPath("$.peakOccupancyAt").doesNotExist());
-    }
-
-    @Test
-    void getParkingStats_withValidDateRangeAndNoParkingId_returnParkingStatsWithinRange() throws Exception {
-        LocalDate start = LocalDate.of(2024, 12, 1);
-        LocalDate end = LocalDate.of(2024, 12, 31);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-        when(dataRepository.values()).thenReturn(dataList);
-
-        mockMvc.perform(get("/parkings/stats/date")
-                        .queryParam("start_date", start.toString())
-                        .queryParam("end_date", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsage").value(15L))
-                .andExpect(jsonPath("$.averageAvailability", Matchers.closeTo(0.58, 0.01)))
-                .andExpect(jsonPath("$.peakOccupancyAt")
-                        .value(DateTimeFormatter.ISO_DATE_TIME.format(
-                                dataList.getFirst().timestamp())));
-    }
-
-    @Test
-    void getParkingStats_withValidParkingIdAndTimeRange_returnParkingStatsForParkingWithinRange() throws Exception {
-        int parkingId = 1;
-        LocalTime start = LocalTime.of(8, 0);
-        LocalTime end = LocalTime.of(18, 0);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-        when(dataRepository.values()).thenReturn(dataList);
-
-        mockMvc.perform(get("/parkings/stats/time")
-                        .queryParam("id", String.valueOf(parkingId))
-                        .queryParam("start_time", start.toString())
-                        .queryParam("end_time", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsage").value(5L))
-                .andExpect(jsonPath("$.averageAvailability").value(0.5))
-                .andExpect(jsonPath("$.peakOccupancyAt")
-                        .value(DateTimeFormatter.ISO_DATE_TIME.format(
-                                dataList.getFirst().timestamp())));
-    }
-
-    @Test
-    void getParkingStats_withValidParkingIdAndEndTimeRange_returnParkingStatsForParkingUpToEndTime() throws Exception {
-        int parkingId = 1;
-        LocalTime end = LocalTime.of(18, 0);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-        when(dataRepository.values()).thenReturn(dataList);
-
-        mockMvc.perform(get("/parkings/stats/time")
-                        .queryParam("id", String.valueOf(parkingId))
-                        .queryParam("end_time", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalUsage").value(5L))
-                .andExpect(jsonPath("$.averageAvailability").value(0.5))
-                .andExpect(jsonPath("$.peakOccupancyAt")
-                        .value(DateTimeFormatter.ISO_DATE_TIME.format(
-                                dataList.getFirst().timestamp())));
-    }
-
-    @Test
-    void getParkingStats_withIncorrectParkingIdAndTimeRange_returnNotFound() throws Exception {
-        int parkingId = -1;
-        LocalTime start = LocalTime.of(8, 0);
-        LocalTime end = LocalTime.of(18, 0);
-        when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
-
-        mockMvc.perform(get("/parkings/stats/time")
-                        .queryParam("id", String.valueOf(parkingId))
-                        .queryParam("start_time", start.toString())
-                        .queryParam("end_time", end.toString())
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.errorMessage", anything()));
-
-        verify(dataRepository, never()).values();
     }
 }

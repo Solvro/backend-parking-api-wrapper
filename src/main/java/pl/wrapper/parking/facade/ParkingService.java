@@ -1,17 +1,22 @@
 package pl.wrapper.parking.facade;
 
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.lang.Nullable;
-import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 public interface ParkingService {
-    Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalDateTime start, LocalDateTime end);
+    Result<ParkingStatsResponse> getParkingStats(
+            @Nullable Integer parkingId, @Nullable DayOfWeek dayOfWeek, LocalTime time);
 
-    Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalTime start, LocalTime end);
+    Result<DailyParkingStatsResponse> getDailyParkingStats(@Nullable Integer parkingId, DayOfWeek dayOfWeek);
+
+    Result<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable Integer parkingId);
 
     List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened);
 

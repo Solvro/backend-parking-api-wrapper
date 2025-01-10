@@ -10,8 +10,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingService;
-import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
@@ -41,54 +42,33 @@ public class ParkingController {
     @GetMapping(path = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getParkingStats(
             @RequestParam(name = "id", required = false) Integer parkingId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, fallbackPatterns = "yyyy-MM-dd HH:mm:ss")
-                    @RequestParam(name = "start_timestamp", required = false)
-                    LocalDateTime start,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME, fallbackPatterns = "yyyy-MM-dd HH:mm:ss")
-                    @RequestParam(name = "end_timestamp", required = false)
-                    LocalDateTime end,
+            @RequestParam(name = "day_of_week", required = false) DayOfWeek dayOfWeek,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "time") LocalTime time,
             HttpServletRequest request) {
         log.info(
-                "Fetching parking stats with parameters: id = {}, start_timestamp = {}, end_timestamp = {}",
+                "Fetching parking stats with parameters: id = {}, day_of_week = {}, time = {}",
                 parkingId,
-                start,
-                end);
-        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, start, end);
+                dayOfWeek,
+                time);
+        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, dayOfWeek, time);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @GetMapping(path = "/stats/date", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getParkingStats(
+    @GetMapping(path = "/stats/daily", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getDailyParkingStats(
             @RequestParam(name = "id", required = false) Integer parkingId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(name = "start_date", required = false)
-                    LocalDate start,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(name = "end_date", required = false)
-                    LocalDate end,
+            @RequestParam(name = "day_of_week") DayOfWeek dayOfWeek,
             HttpServletRequest request) {
-        log.info(
-                "Fetching parking stats with parameters: id = {}, start_date = {}, end_date = {}",
-                parkingId,
-                start,
-                end);
-        Result<ParkingStatsResponse> result = parkingService.getParkingStats(
-                parkingId, start != null ? start.atStartOfDay() : null, end != null ? end.atTime(23, 59, 59) : null);
+        log.info("Fetching daily parking stats with parameters: id = {}, day_of_week = {}", parkingId, dayOfWeek);
+        Result<DailyParkingStatsResponse> result = parkingService.getDailyParkingStats(parkingId, dayOfWeek);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @GetMapping(path = "/stats/time", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getParkingStats(
-            @RequestParam(name = "id", required = false) Integer parkingId,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "start_time", required = false)
-                    LocalTime start,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "end_time", required = false)
-                    LocalTime end,
-            HttpServletRequest request) {
-        log.info(
-                "Fetching parking stats with parameters: id = {}, start_time = {}, end_time = {}",
-                parkingId,
-                start,
-                end);
-        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, start, end);
+    @GetMapping(path = "/stats/weekly", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<String> getWeeklyParkingStats(
+            @RequestParam(name = "id", required = false) Integer parkingId, HttpServletRequest request) {
+        log.info("Fetching weekly parking stats with parameters: id = {}", parkingId);
+        Result<WeeklyParkingStatsResponse> result = parkingService.getWeeklyParkingStats(parkingId);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 

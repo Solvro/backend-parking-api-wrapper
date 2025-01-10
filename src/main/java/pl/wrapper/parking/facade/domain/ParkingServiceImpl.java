@@ -1,63 +1,112 @@
 package pl.wrapper.parking.facade.domain;
 
+import static java.time.temporal.TemporalAdjusters.*;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
-import pl.wrapper.parking.facade.dto.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
+import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
+import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 @Service
 @Slf4j
 public record ParkingServiceImpl(
-        PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient, ParkingDataRepository dataRepository)
+        PwrApiServerCaller pwrApiServerCaller,
+        NominatimClient nominatimClient,
+        ParkingDataRepository dataRepository,
+        @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval)
         implements ParkingService {
 
     @Override
-    public Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalDateTime start, LocalDateTime end) {
-        if (!getById(parkingId, null).isSuccess())
+    public Result<ParkingStatsResponse> getParkingStats(
+            @Nullable Integer parkingId, @Nullable DayOfWeek dayOfWeek, LocalTime time) {
+        if (parkingId != null && !getById(parkingId, null).isSuccess()) {
             return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
+        }
 
-        List<ParkingData> dataList = dataRepository.values().stream()
-                .filter(generatePredicateForParams(parkingId, start, end))
-                .toList();
+        Collection<ParkingData> dataList = (parkingId == null)
+                ? dataRepository.values()
+                : Collections.singletonList(dataRepository.get(parkingId));
 
-        return Result.success(calculateStats(dataList));
+        LocalDateTime roundedDateTime = (dayOfWeek == null)
+                ? DateTimeUtils.roundToNearestInterval(LocalDateTime.now().with(time), minuteInterval)
+                : DateTimeUtils.roundToNearestInterval(
+                        LocalDateTime.now().with(nextOrSame(dayOfWeek)).with(time), minuteInterval);
+
+        LocalTime roundedTime = roundedDateTime.toLocalTime();
+        DayOfWeek roundedDay = roundedDateTime.getDayOfWeek();
+
+        List<Double> availabilities = new ArrayList<>();
+        List<Double> freeSpots = new ArrayList<>();
+
+        if (dayOfWeek != null) {
+            for (ParkingData data : dataList) {
+                AvailabilityData availabilityData = data.freeSpotsHistory()
+                        .getOrDefault(roundedDay, new HashMap<>())
+                        .get(roundedTime);
+                if (availabilityData != null) {
+                    double availability = availabilityData.averageAvailability();
+                    availabilities.add(availability);
+                    freeSpots.add(availability * data.totalSpots());
+                }
+            }
+        } else {
+            for (ParkingData data : dataList) {
+                data.freeSpotsHistory().values().stream()
+                        .map(dailyHistory -> dailyHistory.get(roundedTime))
+                        .filter(Objects::nonNull)
+                        .mapToDouble(AvailabilityData::averageAvailability)
+                        .average()
+                        .ifPresent(availability -> {
+                            availabilities.add(availability);
+                            freeSpots.add(availability * data.totalSpots());
+                        });
+            }
+        }
+
+        return Result.success(new ParkingStatsResponse(calculateParkingStats(availabilities, freeSpots)));
     }
 
     @Override
-    public Result<ParkingStatsResponse> getParkingStats(Integer parkingId, LocalTime start, LocalTime end) {
-        if (!getById(parkingId, null).isSuccess())
-            return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
-
-        List<ParkingData> dataList = dataRepository.values().stream()
-                .filter(generatePredicateForParams(parkingId, start, end))
-                .toList();
-
-        return Result.success(calculateStats(dataList));
+    public Result<DailyParkingStatsResponse> getDailyParkingStats(@Nullable Integer parkingId, DayOfWeek dayOfWeek) {
+        return null;
     }
 
     @Override
-    public List<ParkingResponse> getAllWithFreeSpots(Boolean opened) {
+    public Result<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable Integer parkingId) {
+        return null;
+    }
+
+    @Override
+    public List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened, true);
         return getStreamOfFilteredFetchedParkingLots(predicate).toList();
     }
 
     @Override
-    public Result<ParkingResponse> getWithTheMostFreeSpots(Boolean opened) {
+    public Result<ParkingResponse> getWithTheMostFreeSpots(@Nullable Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, null, opened, null);
         return getStreamOfFilteredFetchedParkingLots(predicate)
                 .max(Comparator.comparingInt(ParkingResponse::freeSpots))
@@ -83,7 +132,7 @@ public record ParkingServiceImpl(
     }
 
     @Override
-    public Result<ParkingResponse> getByName(String name, Boolean opened) {
+    public Result<ParkingResponse> getByName(String name, @Nullable Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, null, name, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking)
@@ -91,7 +140,7 @@ public record ParkingServiceImpl(
     }
 
     @Override
-    public Result<ParkingResponse> getById(Integer id, Boolean opened) {
+    public Result<ParkingResponse> getById(Integer id, @Nullable Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(null, id, null, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking)
@@ -99,7 +148,7 @@ public record ParkingServiceImpl(
     }
 
     @Override
-    public Result<ParkingResponse> getBySymbol(String symbol, Boolean opened) {
+    public Result<ParkingResponse> getBySymbol(String symbol, @Nullable Boolean opened) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, null, null, opened, null);
         return findParking(predicate)
                 .map(this::handleFoundParking)
@@ -108,7 +157,11 @@ public record ParkingServiceImpl(
 
     @Override
     public List<ParkingResponse> getByParams(
-            String symbol, Integer id, String name, Boolean opened, Boolean hasFreeSpots) {
+            @Nullable String symbol,
+            @Nullable Integer id,
+            @Nullable String name,
+            @Nullable Boolean opened,
+            @Nullable Boolean hasFreeSpots) {
         Predicate<ParkingResponse> predicate = generatePredicateForParams(symbol, id, name, opened, hasFreeSpots);
         return getStreamOfFilteredFetchedParkingLots(predicate).toList();
     }
@@ -166,42 +219,16 @@ public record ParkingServiceImpl(
         return predicate;
     }
 
-    private Predicate<ParkingData> generatePredicateForParams(
-            Integer parkingId, LocalDateTime start, LocalDateTime end) {
-        Predicate<ParkingData> predicate = data -> true;
-        if (parkingId != null) predicate = predicate.and(data -> Objects.equals(data.parkingId(), parkingId));
-        if (start != null) predicate = predicate.and(data -> !data.timestamp().isBefore(start));
-        if (end != null) predicate = predicate.and(data -> !data.timestamp().isAfter(end));
-
-        return predicate;
-    }
-
-    private Predicate<ParkingData> generatePredicateForParams(Integer parkingId, LocalTime start, LocalTime end) {
-        Predicate<ParkingData> predicate = data -> true;
-        if (parkingId != null) predicate = predicate.and(data -> Objects.equals(data.parkingId(), parkingId));
-        if (start != null)
-            predicate = predicate.and(data -> !data.timestamp().toLocalTime().isBefore(start));
-        if (end != null)
-            predicate = predicate.and(data -> !data.timestamp().toLocalTime().isAfter(end));
-
-        return predicate;
-    }
-
-    private static ParkingStatsResponse calculateStats(List<ParkingData> dataList) {
-        long totalUsage = dataList.stream()
-                .mapToLong(data -> data.totalSpots() - data.freeSpots())
-                .sum();
-        double averageAvailability = dataList.stream()
-                .mapToDouble(data -> (double) data.freeSpots() / data.totalSpots())
+    private static ParkingStats calculateParkingStats(List<Double> availabilities, List<Double> freeSpots) {
+        double averageAvailability = availabilities.stream()
+                .mapToDouble(Double::doubleValue)
                 .average()
                 .orElse(0.0);
         averageAvailability = BigDecimal.valueOf(averageAvailability)
                 .setScale(3, RoundingMode.HALF_UP)
                 .doubleValue();
-        LocalDateTime peakOccupancyAt = dataList.stream()
-                .min(Comparator.comparingDouble(data -> (double) data.freeSpots() / data.totalSpots()))
-                .map(ParkingData::timestamp)
-                .orElse(null);
-        return new ParkingStatsResponse(totalUsage, averageAvailability, peakOccupancyAt);
+        int averageFreeSpots = (int)
+                freeSpots.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+        return new ParkingStats(averageAvailability, averageFreeSpots);
     }
 }
