@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +21,7 @@ import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 @Component("parkingDataRepository")
+@Slf4j
 public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, ParkingData> {
 
     @Value("${pwr-api.data-fetch.minutes}")
@@ -44,6 +47,8 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
         LocalDateTime currentDateTime = DateTimeUtils.roundToNearestInterval(LocalDateTime.now(), minuteInterval);
         LocalTime currentTime = currentDateTime.toLocalTime();
         DayOfWeek currentDay = currentDateTime.getDayOfWeek();
+
+        log.info("Saving parking data with rounded time: {}, day: {}", currentTime, currentDay);
 
         List<ParkingResponse> parkings = pwrApiServerCaller.fetchData();
         for (ParkingResponse parking : parkings) {
@@ -72,5 +77,7 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
             dailyHistory.put(currentTime, newAvailabilityData);
             add(parkingId, parkingData);
         }
+
+        log.info("Parking data saved successfully. Storage updated.");
     }
 }

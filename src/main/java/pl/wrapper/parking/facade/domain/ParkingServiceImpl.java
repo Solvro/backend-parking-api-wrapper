@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,7 +65,7 @@ public record ParkingServiceImpl(
         if (dayOfWeek != null) {
             for (ParkingData data : dataList) {
                 AvailabilityData availabilityData = data.freeSpotsHistory()
-                        .getOrDefault(roundedDay, new HashMap<>())
+                        .getOrDefault(roundedDay, Map.of())
                         .get(roundedTime);
                 if (availabilityData != null) {
                     double availability = availabilityData.averageAvailability();
@@ -91,7 +92,57 @@ public record ParkingServiceImpl(
 
     @Override
     public Result<DailyParkingStatsResponse> getDailyParkingStats(@Nullable Integer parkingId, DayOfWeek dayOfWeek) {
-        return null;
+        if (parkingId != null && !getById(parkingId, null).isSuccess()) {
+            return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
+        }
+
+        Collection<ParkingData> dataList = (parkingId == null)
+                ? dataRepository.values()
+                : Collections.singletonList(dataRepository.get(parkingId));
+
+        List<Double> availabilities = new ArrayList<>();
+        List<Double> freeSpots = new ArrayList<>();
+        Map<LocalTime, List<Double>> availabilityMap = new HashMap<>();
+
+        for(ParkingData data : dataList) {
+            List<Double> tempAvailabilities = new ArrayList<>();
+            data.freeSpotsHistory().getOrDefault(dayOfWeek, Map.of())
+                    .forEach((key, value) -> {
+                        double availability = value.averageAvailability();
+                        tempAvailabilities.add(availability);
+                        availabilityMap.computeIfAbsent(key, k -> new ArrayList<>())
+                                .add(availability);
+                    });
+            tempAvailabilities.stream()
+                    .mapToDouble(Double::doubleValue)
+                    .average()
+                    .ifPresent(availability -> {
+                        availabilities.add(availability);
+                        freeSpots.add(availability * data.totalSpots());
+                    });
+        }
+
+        Map<LocalTime, Double> avgAvailabilityMap = availabilityMap.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey,
+                        entry -> entry.getValue().stream()
+                                .mapToDouble(Double::doubleValue)
+                                .average()
+                                .orElse(0.0)
+                ));
+
+        ParkingStats stats = calculateParkingStats(availabilities, freeSpots);
+
+        LocalTime maxOccupancyAt = avgAvailabilityMap.entrySet().stream()
+                .min(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        LocalTime minOccupancyAt = avgAvailabilityMap.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        return Result.success(new DailyParkingStatsResponse(stats, maxOccupancyAt, minOccupancyAt));
     }
 
     @Override
