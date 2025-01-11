@@ -42,15 +42,14 @@ public class ParkingController {
     @GetMapping(path = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getParkingStats(
             @RequestParam(name = "id", required = false) Integer parkingId,
-            @RequestParam(name = "day_of_week", required = false) String dayOfWeekParam,
+            @RequestParam(name = "day_of_week", required = false) DayOfWeek dayOfWeek,
             @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "time") LocalTime time,
             HttpServletRequest request) {
         log.info(
                 "Fetching parking stats with parameters: id = {}, day_of_week = {}, time = {}",
                 parkingId,
-                dayOfWeekParam,
+                dayOfWeek,
                 time);
-        DayOfWeek dayOfWeek = dayOfWeekParam != null ? DayOfWeek.valueOf(dayOfWeekParam.toUpperCase()) : null;
         Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, dayOfWeek, time);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
@@ -58,10 +57,9 @@ public class ParkingController {
     @GetMapping(path = "/stats/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getDailyParkingStats(
             @RequestParam(name = "id", required = false) Integer parkingId,
-            @RequestParam(name = "day_of_week") String dayOfWeekParam,
+            @RequestParam(name = "day_of_week") DayOfWeek dayOfWeek,
             HttpServletRequest request) {
-        log.info("Fetching daily parking stats with parameters: id = {}, day_of_week = {}", parkingId, dayOfWeekParam);
-        DayOfWeek dayOfWeek = DayOfWeek.valueOf(dayOfWeekParam.toUpperCase());
+        log.info("Fetching daily parking stats with parameters: id = {}, day_of_week = {}", parkingId, dayOfWeek);
         Result<DailyParkingStatsResponse> result = parkingService.getDailyParkingStats(parkingId, dayOfWeek);
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
