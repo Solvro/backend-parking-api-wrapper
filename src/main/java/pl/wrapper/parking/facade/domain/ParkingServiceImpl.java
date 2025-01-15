@@ -40,7 +40,7 @@ public record ParkingServiceImpl(
     @Override
     public Result<ParkingStatsResponse> getParkingStats(
             @Nullable Integer parkingId, @Nullable DayOfWeek dayOfWeek, LocalTime time) {
-        if (parkingId != null && !getById(parkingId, null).isSuccess()) {
+        if (parkingId != null && getById(parkingId) == null) {
             return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
         }
 
@@ -84,7 +84,7 @@ public record ParkingServiceImpl(
 
     @Override
     public Result<DailyParkingStatsResponse> getDailyParkingStats(@Nullable Integer parkingId, DayOfWeek dayOfWeek) {
-        if (parkingId != null && !getById(parkingId, null).isSuccess()) {
+        if (parkingId != null && getById(parkingId) == null) {
             return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
         }
 
@@ -106,7 +106,7 @@ public record ParkingServiceImpl(
 
     @Override
     public Result<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable Integer parkingId) {
-        if (parkingId != null && !getById(parkingId, null).isSuccess()) {
+        if (parkingId != null && getById(parkingId) == null) {
             return Result.failure(new ParkingError.ParkingNotFoundById(parkingId));
         }
 
@@ -244,6 +244,13 @@ public record ParkingServiceImpl(
         if (hasFreeSpots != null) predicate = predicate.and(parking -> hasFreeSpots == (parking.freeSpots() > 0));
 
         return predicate;
+    }
+
+    private @Nullable ParkingResponse getById(Integer parkingId) {
+        return pwrApiServerCaller.fetchData().stream()
+                .filter(parking -> Objects.equals(parking.parkingId(), parkingId))
+                .findFirst()
+                .orElse(null);
     }
 
     private Collection<ParkingData> getParkingDataList(Integer parkingId) {

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -26,14 +25,10 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
     @Value("${pwr-api.data-fetch.minutes}")
     private Integer minuteInterval;
 
-    private PwrApiServerCaller pwrApiServerCaller;
+    private final PwrApiServerCaller pwrApiServerCaller;
 
-    public ParkingDataRepository(@Value("${serialization.location.parkingData}") String saveToLocationPath) {
+    public ParkingDataRepository(@Value("${serialization.location.parkingData}") String saveToLocationPath, PwrApiServerCaller pwrApiServerCaller) {
         super(saveToLocationPath, new HashMap<>(), null);
-    }
-
-    @Autowired
-    public void setPwrApiServerCaller(PwrApiServerCaller pwrApiServerCaller) {
         this.pwrApiServerCaller = pwrApiServerCaller;
     }
 
