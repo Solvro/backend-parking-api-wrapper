@@ -40,36 +40,34 @@ public class ParkingController {
     private final ParkingService parkingService;
 
     @GetMapping(path = "/stats", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getParkingStats(
-            @RequestParam(name = "id", required = false) Integer parkingId,
+    public ResponseEntity<List<ParkingStatsResponse>> getParkingStats(
+            @RequestParam(name = "ids", required = false) List<Integer> parkingIds,
             @RequestParam(name = "day_of_week", required = false) DayOfWeek dayOfWeek,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "time") LocalTime time,
-            HttpServletRequest request) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) @RequestParam(name = "time") LocalTime time) {
         log.info(
-                "Fetching parking stats with parameters: id = {}, day_of_week = {}, time = {}",
-                parkingId,
+                "Fetching parking stats with parameters: ids = {}, day_of_week = {}, time = {}",
+                parkingIds,
                 dayOfWeek,
                 time);
-        Result<ParkingStatsResponse> result = parkingService.getParkingStats(parkingId, dayOfWeek, time);
-        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+        List<ParkingStatsResponse> result = parkingService.getParkingStats(parkingIds, dayOfWeek, time);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = "/stats/daily", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getDailyParkingStats(
-            @RequestParam(name = "id", required = false) Integer parkingId,
-            @RequestParam(name = "day_of_week") DayOfWeek dayOfWeek,
-            HttpServletRequest request) {
-        log.info("Fetching daily parking stats with parameters: id = {}, day_of_week = {}", parkingId, dayOfWeek);
-        Result<DailyParkingStatsResponse> result = parkingService.getDailyParkingStats(parkingId, dayOfWeek);
-        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    public ResponseEntity<List<DailyParkingStatsResponse>> getDailyParkingStats(
+            @RequestParam(name = "ids", required = false) List<Integer> parkingIds,
+            @RequestParam(name = "day_of_week") DayOfWeek dayOfWeek) {
+        log.info("Fetching daily parking stats with parameters: ids = {}, day_of_week = {}", parkingIds, dayOfWeek);
+        List<DailyParkingStatsResponse> result = parkingService.getDailyParkingStats(parkingIds, dayOfWeek);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping(path = "/stats/weekly", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<String> getWeeklyParkingStats(
-            @RequestParam(name = "id", required = false) Integer parkingId, HttpServletRequest request) {
-        log.info("Fetching weekly parking stats with parameters: id = {}", parkingId);
-        Result<WeeklyParkingStatsResponse> result = parkingService.getWeeklyParkingStats(parkingId);
-        return handleResult(result, HttpStatus.OK, request.getRequestURI());
+    public ResponseEntity<List<WeeklyParkingStatsResponse>> getWeeklyParkingStats(
+            @RequestParam(name = "ids", required = false) List<Integer> parkingIds) {
+        log.info("Fetching weekly parking stats with parameters: ids = {}", parkingIds);
+        List<WeeklyParkingStatsResponse> result = parkingService.getWeeklyParkingStats(parkingIds);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "get list of parking lots with free spots from all/opened/closed parking lots")

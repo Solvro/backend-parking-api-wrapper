@@ -1,3 +1,6 @@
 package pl.wrapper.parking.facade.dto.stats;
 
-public record ParkingStats(double averageAvailability, int averageFreeSpots) {}
+import lombok.Builder;
+
+@Builder
+public record ParkingStats(int parkingId, double averageAvailability, int averageFreeSpots) {}

@@ -52,6 +52,7 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
             ParkingData parkingData = get(parkingId);
             if (parkingData == null) {
                 parkingData = ParkingData.builder()
+                        .parkingId(parkingId)
                         .totalSpots(parking.totalSpots())
                         .freeSpotsHistory(new HashMap<>())
                         .build();

@@ -7,5 +7,5 @@ import java.util.Map;
 import lombok.Builder;
 
 @Builder
-public record ParkingData(int totalSpots, Map<DayOfWeek, Map<LocalTime, AvailabilityData>> freeSpotsHistory)
+public record ParkingData(int parkingId, int totalSpots, Map<DayOfWeek, Map<LocalTime, AvailabilityData>> freeSpotsHistory)
         implements Serializable {}

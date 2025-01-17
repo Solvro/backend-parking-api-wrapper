@@ -11,12 +11,12 @@ import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 public interface ParkingService {
-    Result<ParkingStatsResponse> getParkingStats(
-            @Nullable Integer parkingId, @Nullable DayOfWeek dayOfWeek, LocalTime time);
+    List<ParkingStatsResponse> getParkingStats(
+            @Nullable List<Integer> parkingIds, @Nullable DayOfWeek dayOfWeek, LocalTime time);
 
-    Result<DailyParkingStatsResponse> getDailyParkingStats(@Nullable Integer parkingId, DayOfWeek dayOfWeek);
+    List<DailyParkingStatsResponse> getDailyParkingStats(@Nullable List<Integer> parkingIds, DayOfWeek dayOfWeek);
 
-    Result<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable Integer parkingId);
+    List<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable List<Integer> parkingIds);
 
     List<ParkingResponse> getAllWithFreeSpots(@Nullable Boolean opened);
 
