@@ -27,7 +27,9 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
 
     private final PwrApiServerCaller pwrApiServerCaller;
 
-    public ParkingDataRepository(@Value("${serialization.location.parkingData}") String saveToLocationPath, PwrApiServerCaller pwrApiServerCaller) {
+    public ParkingDataRepository(
+            @Value("${serialization.location.parkingData}") String saveToLocationPath,
+            PwrApiServerCaller pwrApiServerCaller) {
         super(saveToLocationPath, new HashMap<>(), null);
         this.pwrApiServerCaller = pwrApiServerCaller;
     }
