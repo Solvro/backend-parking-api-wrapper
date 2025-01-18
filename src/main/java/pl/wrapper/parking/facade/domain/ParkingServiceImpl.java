@@ -41,17 +41,15 @@ public record ParkingServiceImpl(
             @Nullable List<Integer> parkingIds, @Nullable DayOfWeek dayOfWeek, LocalTime time) {
         Collection<ParkingData> dataList = getParkingDataList(parkingIds);
 
-        LocalDateTime roundedDateTime = (dayOfWeek == null)
-                ? DateTimeUtils.roundToNearestInterval(LocalDateTime.now().with(time), minuteInterval)
-                : DateTimeUtils.roundToNearestInterval(
-                        LocalDateTime.now().with(nextOrSame(dayOfWeek)).with(time), minuteInterval);
-
-        LocalTime roundedTime = roundedDateTime.toLocalTime();
-        DayOfWeek roundedDay = roundedDateTime.getDayOfWeek();
-
-        return (dayOfWeek != null)
-                ? calculateStatsByDay(dataList, roundedDay, roundedTime)
-                : calculateStatsByTime(dataList, roundedTime);
+        if (dayOfWeek != null) {
+            LocalDateTime roundedDateTime = DateTimeUtils.roundToNearestInterval(
+                    LocalDateTime.now().with(nextOrSame(dayOfWeek)).with(time), minuteInterval);
+            return calculateStatsByDay(dataList, roundedDateTime.getDayOfWeek(), roundedDateTime.toLocalTime());
+        } else {
+            LocalDateTime roundedDateTime =
+                    DateTimeUtils.roundToNearestInterval(LocalDateTime.now().with(time), minuteInterval);
+            return calculateStatsByTime(dataList, roundedDateTime.toLocalTime());
+        }
     }
 
     @Override
@@ -213,6 +211,7 @@ public record ParkingServiceImpl(
         List<ParkingStatsResponse> result = new ArrayList<>();
         for (ParkingData data : dataList) {
             int parkingId = data.parkingId();
+            int totalSpots = data.totalSpots();
             data.freeSpotsHistory().values().stream()
                     .map(dailyHistory -> dailyHistory.get(roundedTime))
                     .filter(Objects::nonNull)
@@ -221,8 +220,10 @@ public record ParkingServiceImpl(
                     .ifPresentOrElse(
                             availability -> result.add(
                                     new ParkingStatsResponse(calculateParkingStats(data, List.of(availability)))),
-                            () -> result.add(new ParkingStatsResponse(
-                                    ParkingStats.builder().parkingId(parkingId).build())));
+                            () -> result.add(new ParkingStatsResponse(ParkingStats.builder()
+                                    .parkingId(parkingId)
+                                    .totalSpots(totalSpots)
+                                    .build())));
         }
         return result;
     }
@@ -232,15 +233,28 @@ public record ParkingServiceImpl(
         List<DailyParkingStatsResponse> result = new ArrayList<>();
         for (ParkingData data : dataList) {
             List<Double> availabilities = new ArrayList<>();
-            Map<LocalTime, Double> availabilityMap = new HashMap<>();
-            data.freeSpotsHistory().getOrDefault(dayOfWeek, Map.of()).forEach((key, value) -> {
-                double availability = value.averageAvailability();
+            LocalTime maxOccupancyAt = null;
+            LocalTime minOccupancyAt = null;
+            double maxAvailability = Double.NEGATIVE_INFINITY;
+            double minAvailability = Double.POSITIVE_INFINITY;
+
+            for (Map.Entry<LocalTime, AvailabilityData> entry :
+                    data.freeSpotsHistory().getOrDefault(dayOfWeek, Map.of()).entrySet()) {
+                LocalTime time = entry.getKey();
+                double availability = entry.getValue().averageAvailability();
                 availabilities.add(availability);
-                availabilityMap.put(key, availability);
-            });
+
+                if (availability > maxAvailability) {
+                    maxAvailability = availability;
+                    minOccupancyAt = time;
+                }
+                if (availability < minAvailability) {
+                    minAvailability = availability;
+                    maxOccupancyAt = time;
+                }
+            }
+
             ParkingStats stats = calculateParkingStats(data, availabilities);
-            LocalTime maxOccupancyAt = findMaxOccupancy(availabilityMap);
-            LocalTime minOccupancyAt = findMinOccupancy(availabilityMap);
             result.add(new DailyParkingStatsResponse(stats, maxOccupancyAt, minOccupancyAt));
         }
         return result;
@@ -250,16 +264,33 @@ public record ParkingServiceImpl(
         List<WeeklyParkingStatsResponse> result = new ArrayList<>();
         for (ParkingData data : dataList) {
             List<Double> availabilities = new ArrayList<>();
-            Map<OccupancyInfo, Double> availabilityMap = new HashMap<>();
-            data.freeSpotsHistory()
-                    .forEach((day, dailyHistory) -> dailyHistory.forEach((key, value) -> {
-                        double availability = value.averageAvailability();
-                        availabilities.add(availability);
-                        availabilityMap.put(new OccupancyInfo(day, key), availability);
-                    }));
+            OccupancyInfo maxOccupancyInfo = null;
+            OccupancyInfo minOccupancyInfo = null;
+            double maxAvailability = Double.NEGATIVE_INFINITY;
+            double minAvailability = Double.POSITIVE_INFINITY;
+
+            for (Map.Entry<DayOfWeek, Map<LocalTime, AvailabilityData>> dailyEntry :
+                    data.freeSpotsHistory().entrySet()) {
+                DayOfWeek day = dailyEntry.getKey();
+                for (Map.Entry<LocalTime, AvailabilityData> timeEntry :
+                        dailyEntry.getValue().entrySet()) {
+                    LocalTime time = timeEntry.getKey();
+                    double availability = timeEntry.getValue().averageAvailability();
+                    availabilities.add(availability);
+
+                    OccupancyInfo occupancyInfo = new OccupancyInfo(day, time);
+                    if (availability > maxAvailability) {
+                        maxAvailability = availability;
+                        minOccupancyInfo = occupancyInfo;
+                    }
+                    if (availability < minAvailability) {
+                        minAvailability = availability;
+                        maxOccupancyInfo = occupancyInfo;
+                    }
+                }
+            }
+
             ParkingStats stats = calculateParkingStats(data, availabilities);
-            OccupancyInfo maxOccupancyInfo = findMaxOccupancy(availabilityMap);
-            OccupancyInfo minOccupancyInfo = findMinOccupancy(availabilityMap);
             result.add(new WeeklyParkingStatsResponse(stats, maxOccupancyInfo, minOccupancyInfo));
         }
         return result;
@@ -272,23 +303,10 @@ public record ParkingServiceImpl(
                 .orElse(0.0);
         return ParkingStats.builder()
                 .parkingId(data.parkingId())
+                .totalSpots(data.totalSpots())
                 .averageAvailability(round(averageAvailability))
                 .averageFreeSpots((int) (averageAvailability * data.totalSpots()))
                 .build();
-    }
-
-    private static <T> T findMaxOccupancy(Map<T, Double> availabilityMap) {
-        return availabilityMap.entrySet().stream()
-                .min(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(null);
-    }
-
-    private static <T> T findMinOccupancy(Map<T, Double> availabilityMap) {
-        return availabilityMap.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse(null);
     }
 
     private static double round(double value) {
