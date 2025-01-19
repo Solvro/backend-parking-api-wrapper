@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
 import pl.wrapper.parking.facade.dto.stats.*;
+import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
+import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
+import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
@@ -200,8 +205,8 @@ public record ParkingServiceImpl(
                     data.freeSpotsHistory().getOrDefault(roundedDay, Map.of()).get(roundedTime);
             double availability = Objects.requireNonNullElse(availabilityData, new AvailabilityData(0, 0.0))
                     .averageAvailability();
-            ParkingStats stats = calculateParkingStats(data, List.of(availability));
-            result.add(new ParkingStatsResponse(stats));
+            ParkingStatsResponse response = calculateParkingStats(data, List.of(availability));
+            result.add(new ParkingStatsResponse(response.parkingInfo(), response.stats()));
         }
         return result;
     }
@@ -210,20 +215,14 @@ public record ParkingServiceImpl(
             Collection<ParkingData> dataList, LocalTime roundedTime) {
         List<ParkingStatsResponse> result = new ArrayList<>();
         for (ParkingData data : dataList) {
-            int parkingId = data.parkingId();
-            int totalSpots = data.totalSpots();
             data.freeSpotsHistory().values().stream()
                     .map(dailyHistory -> dailyHistory.get(roundedTime))
                     .filter(Objects::nonNull)
                     .mapToDouble(AvailabilityData::averageAvailability)
                     .average()
                     .ifPresentOrElse(
-                            availability -> result.add(
-                                    new ParkingStatsResponse(calculateParkingStats(data, List.of(availability)))),
-                            () -> result.add(new ParkingStatsResponse(ParkingStats.builder()
-                                    .parkingId(parkingId)
-                                    .totalSpots(totalSpots)
-                                    .build())));
+                            availability -> result.add(calculateParkingStats(data, List.of(availability))),
+                            () -> result.add(calculateParkingStats(data, List.of())));
         }
         return result;
     }
@@ -254,8 +253,9 @@ public record ParkingServiceImpl(
                 }
             }
 
-            ParkingStats stats = calculateParkingStats(data, availabilities);
-            result.add(new DailyParkingStatsResponse(stats, maxOccupancyAt, minOccupancyAt));
+            ParkingStatsResponse response = calculateParkingStats(data, availabilities);
+            result.add(new DailyParkingStatsResponse(
+                    response.parkingInfo(), response.stats(), maxOccupancyAt, minOccupancyAt));
         }
         return result;
     }
@@ -290,23 +290,27 @@ public record ParkingServiceImpl(
                 }
             }
 
-            ParkingStats stats = calculateParkingStats(data, availabilities);
-            result.add(new WeeklyParkingStatsResponse(stats, maxOccupancyInfo, minOccupancyInfo));
+            ParkingStatsResponse response = calculateParkingStats(data, availabilities);
+            result.add(new WeeklyParkingStatsResponse(
+                    response.parkingInfo(), response.stats(), maxOccupancyInfo, minOccupancyInfo));
         }
         return result;
     }
 
-    private static ParkingStats calculateParkingStats(ParkingData data, List<Double> availabilities) {
+    private static ParkingStatsResponse calculateParkingStats(ParkingData data, List<Double> availabilities) {
         double averageAvailability = availabilities.stream()
                 .mapToDouble(Double::doubleValue)
                 .average()
                 .orElse(0.0);
-        return ParkingStats.builder()
+        ParkingInfo info = ParkingInfo.builder()
                 .parkingId(data.parkingId())
                 .totalSpots(data.totalSpots())
+                .build();
+        ParkingStats stats = ParkingStats.builder()
                 .averageAvailability(round(averageAvailability))
                 .averageFreeSpots((int) (averageAvailability * data.totalSpots()))
                 .build();
+        return new ParkingStatsResponse(info, stats);
     }
 
     private static double round(double value) {

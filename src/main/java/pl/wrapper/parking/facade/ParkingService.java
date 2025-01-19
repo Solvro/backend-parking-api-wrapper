@@ -4,9 +4,9 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import org.springframework.lang.Nullable;
-import pl.wrapper.parking.facade.dto.stats.DailyParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.WeeklyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
