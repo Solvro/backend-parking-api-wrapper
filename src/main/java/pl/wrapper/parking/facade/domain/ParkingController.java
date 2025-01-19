@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
@@ -67,6 +68,18 @@ public class ParkingController {
             @RequestParam(name = "ids", required = false) List<Integer> parkingIds) {
         log.info("Fetching weekly parking stats with parameters: ids = {}", parkingIds);
         List<WeeklyParkingStatsResponse> result = parkingService.getWeeklyParkingStats(parkingIds);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(path = "/stats/daily/collective", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CollectiveDailyParkingStats>> getCollectiveDailyParkingStats(
+            @RequestParam(name = "ids", required = false) List<Integer> parkingIds,
+            @RequestParam(name = "day_of_week") DayOfWeek dayOfWeek) {
+        log.info(
+                "Fetching collective daily parking stats with parameters: ids = {}, day_of_week = {}",
+                parkingIds,
+                dayOfWeek);
+        List<CollectiveDailyParkingStats> result = parkingService.getCollectiveDailyParkingStats(parkingIds, dayOfWeek);
         return ResponseEntity.ok(result);
     }
 

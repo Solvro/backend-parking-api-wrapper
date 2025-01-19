@@ -20,6 +20,7 @@ import pl.wrapper.parking.facade.dto.stats.*;
 import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
@@ -66,6 +67,12 @@ public record ParkingServiceImpl(
     @Override
     public List<WeeklyParkingStatsResponse> getWeeklyParkingStats(@Nullable List<Integer> parkingIds) {
         return processParkingDataWeekly(getParkingDataList(parkingIds));
+    }
+
+    @Override
+    public List<CollectiveDailyParkingStats> getCollectiveDailyParkingStats(
+            @Nullable List<Integer> parkingIds, DayOfWeek dayOfWeek) {
+        return processCollectiveParkingDataDaily(dayOfWeek, getParkingDataList(parkingIds));
     }
 
     @Override
@@ -311,6 +318,25 @@ public record ParkingServiceImpl(
                 .averageFreeSpots((int) (averageAvailability * data.totalSpots()))
                 .build();
         return new ParkingStatsResponse(info, stats);
+    }
+
+    private static List<CollectiveDailyParkingStats> processCollectiveParkingDataDaily(
+            DayOfWeek dayOfWeek, Collection<ParkingData> dataList) {
+        List<CollectiveDailyParkingStats> result = new ArrayList<>();
+        for (ParkingData data : dataList) {
+            ParkingInfo info = new ParkingInfo(data.parkingId(), data.totalSpots());
+            Map<LocalTime, ParkingStats> statsMap = new TreeMap<>();
+            data.freeSpotsHistory().getOrDefault(dayOfWeek, Map.of()).forEach((key, value) -> {
+                double availability = value.averageAvailability();
+                ParkingStats stats = ParkingStats.builder()
+                        .averageAvailability(round(availability))
+                        .averageFreeSpots((int) (availability * data.totalSpots()))
+                        .build();
+                statsMap.put(key, stats);
+            });
+            result.add(new CollectiveDailyParkingStats(info, statsMap));
+        }
+        return result;
     }
 
     private static double round(double value) {
