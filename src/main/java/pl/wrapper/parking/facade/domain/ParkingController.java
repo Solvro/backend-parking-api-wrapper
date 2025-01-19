@@ -27,6 +27,7 @@ import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.error.Result;
@@ -80,6 +81,14 @@ public class ParkingController {
                 parkingIds,
                 dayOfWeek);
         List<CollectiveDailyParkingStats> result = parkingService.getCollectiveDailyParkingStats(parkingIds, dayOfWeek);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping(path = "/stats/weekly/collective", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<CollectiveWeeklyParkingStats>> getCollectiveWeeklyParkingStats(
+            @RequestParam(name = "ids", required = false) List<Integer> parkingIds) {
+        log.info("Fetching collective weekly parking stats with parameters: ids = {}", parkingIds);
+        List<CollectiveWeeklyParkingStats> result = parkingService.getCollectiveWeeklyParkingStats(parkingIds);
         return ResponseEntity.ok(result);
     }
 
