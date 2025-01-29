@@ -70,7 +70,7 @@ public class ParkingController {
                                                                 @Schema(implementation = ParkingStatsResponse.class)))),
                 @ApiResponse(
                         responseCode = "400",
-                        description = "Incorrect input query parameters",
+                        description = "Incorrect or missing input query parameters",
                         content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -116,7 +116,7 @@ public class ParkingController {
                                                                                 DailyParkingStatsResponse.class)))),
                 @ApiResponse(
                         responseCode = "400",
-                        description = "Incorrect input query parameters",
+                        description = "Incorrect or missing input query parameters",
                         content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -197,7 +197,7 @@ public class ParkingController {
                                                                 + "\"08:10:00\": {\"averageAvailability\": 0.69, \"averageFreeSpots\": 33}}}]"))),
                 @ApiResponse(
                         responseCode = "400",
-                        description = "Incorrect input query parameters",
+                        description = "Incorrect or missing input query parameters",
                         content =
                                 @Content(
                                         mediaType = MediaType.APPLICATION_JSON_VALUE,

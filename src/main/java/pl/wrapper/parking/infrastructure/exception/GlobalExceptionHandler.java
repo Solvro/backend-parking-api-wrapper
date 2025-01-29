@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.serializer.support.SerializationFailedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -31,6 +32,15 @@ class GlobalExceptionHandler {
             MethodArgumentTypeMismatchException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = "Argument type mismatch";
+        ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
+        logError(message, request.getRequestURI(), ex);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorWrapper> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = String.format("'%s' parameter is missing",  ex.getParameterName());
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), ex);
         return new ResponseEntity<>(errorWrapper, status);
