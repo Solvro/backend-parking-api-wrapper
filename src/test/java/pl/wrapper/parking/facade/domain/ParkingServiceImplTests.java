@@ -291,6 +291,8 @@ public class ParkingServiceImplTests {
         assertThat(stats2.stats())
                 .extracting(ParkingStats::averageAvailability, ParkingStats::averageFreeSpots)
                 .containsExactly(0.6, 120);
+
+        verify(dataRepository, never()).values();
     }
 
     @Test
@@ -320,6 +322,8 @@ public class ParkingServiceImplTests {
         assertThat(stats)
                 .extracting(DailyParkingStatsResponse::maxOccupancyAt, DailyParkingStatsResponse::minOccupancyAt)
                 .containsExactly(LocalTime.of(12, 0), LocalTime.of(10, 0));
+
+        verify(dataRepository, never()).values();
     }
 
     @Test
@@ -374,10 +378,12 @@ public class ParkingServiceImplTests {
                 .containsOnly(
                         entry(LocalTime.of(10, 0), new ParkingStats(0.8, 80)),
                         entry(LocalTime.of(12, 0), new ParkingStats(0.5, 50)));
+
+        verify(dataRepository, never()).values();
     }
 
     @Test
-    void getCollectiveWeeklyParkingStats_withoutIdList_returnCorrectCollectiveDailyStats() {
+    void getCollectiveWeeklyParkingStats_withoutIdList_returnCorrectCollectiveWeeklyStats() {
         when(dataRepository.values()).thenReturn(parkingData);
 
         List<CollectiveWeeklyParkingStats> result = parkingService.getCollectiveWeeklyParkingStats(null);
