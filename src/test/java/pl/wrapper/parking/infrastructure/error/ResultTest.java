@@ -40,7 +40,7 @@ class ResultTest {
 
         Mockito.when(service.getById(parkingResponse.parkingId(), null)).thenReturn(Result.success(parkingResponse));
 
-        MvcResult mvcResult = mockMvc.perform(get("/parkings/id")
+        MvcResult mvcResult = mockMvc.perform(get("/id")
                         .param("id", String.valueOf(parkingResponse.parkingId()))) // add url and variables
                 .andReturn();
 

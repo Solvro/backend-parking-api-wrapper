@@ -97,7 +97,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingId", is(1)))
                 .andExpect(jsonPath("$.name", is("Parking 1")))
@@ -110,7 +110,7 @@ public class ParkingControllerIT {
         String address = "non-existent address";
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.empty());
 
-        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
 
@@ -124,7 +124,7 @@ public class ParkingControllerIT {
         when(nominatimClient.search(eq(address), anyString())).thenReturn(Flux.just(location));
         when(pwrApiServerCaller.fetchData()).thenReturn(Collections.emptyList());
 
-        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
@@ -133,7 +133,7 @@ public class ParkingControllerIT {
     public void getParkingByParams_returnAllParkings_whenNoParamsGiven() throws Exception {
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(parkings)));
     }
@@ -142,7 +142,7 @@ public class ParkingControllerIT {
     public void getParkingBySymbol_returnFoundParking() throws Exception {
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings/symbol")
+        mockMvc.perform(get("/symbol")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("symbol", "P1"))
                 .andExpect(status().isOk())
@@ -156,7 +156,7 @@ public class ParkingControllerIT {
     public void getParkingByName_returnNoParkings() throws Exception {
         when(pwrApiServerCaller.fetchData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/parkings/name")
+        mockMvc.perform(get("/name")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("name", "Non-existent name"))
                 .andExpect(status().isNotFound())
@@ -167,7 +167,7 @@ public class ParkingControllerIT {
     void getParkingStats_withDayOfWeekAndTime_returnCorrectStats() throws Exception {
         when(dataRepository.values()).thenReturn(parkingData);
 
-        mockMvc.perform(get("/parkings/stats")
+        mockMvc.perform(get("/stats")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("day_of_week", "MONDAY")
                         .queryParam("time", "10:07:15"))
@@ -184,7 +184,7 @@ public class ParkingControllerIT {
         when(dataRepository.fetchAllKeys()).thenReturn(Set.of(1, 2));
         when(dataRepository.get(anyInt())).thenReturn(parkingData.get(0), parkingData.get(1));
 
-        mockMvc.perform(get("/parkings/stats")
+        mockMvc.perform(get("/stats")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("time", "10:07:15")
                         .queryParam("ids", "1", "2", "3"))
@@ -202,7 +202,7 @@ public class ParkingControllerIT {
     void getParkingStats_withEmptyDataRepository_returnEmptyList() throws Exception {
         when(dataRepository.values()).thenReturn(List.of());
 
-        mockMvc.perform(get("/parkings/stats")
+        mockMvc.perform(get("/stats")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("time", "10:07:15")
                         .queryParam("ids", "1", "2"))
@@ -212,7 +212,7 @@ public class ParkingControllerIT {
 
     @Test
     void getParkingStats_withIncorrectTimeFormat_returnBadRequest() throws Exception {
-        mockMvc.perform(get("/parkings/stats")
+        mockMvc.perform(get("/stats")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("time", "incorrect"))
                 .andExpect(status().isBadRequest())
@@ -224,7 +224,7 @@ public class ParkingControllerIT {
         when(dataRepository.fetchAllKeys()).thenReturn(Set.of(1, 2));
         when(dataRepository.get(anyInt())).thenReturn(parkingData.get(0), parkingData.get(1));
 
-        mockMvc.perform(get("/parkings/stats/daily")
+        mockMvc.perform(get("/stats/daily")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("day_of_week", "MONDAY")
                         .queryParam("ids", "1"))
@@ -240,7 +240,7 @@ public class ParkingControllerIT {
 
     @Test
     void getDailyParkingStats_withMissingDayOfWeek_returnBadRequest() throws Exception {
-        mockMvc.perform(get("/parkings/stats/daily"))
+        mockMvc.perform(get("/stats/daily"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
@@ -249,7 +249,7 @@ public class ParkingControllerIT {
     void getWeeklyParkingStats_withEmptyIdList_returnCorrectWeeklyStats() throws Exception {
         when(dataRepository.values()).thenReturn(parkingData);
 
-        mockMvc.perform(get("/parkings/stats/weekly").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/stats/weekly").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
                 .andExpect(jsonPath("$[0].parkingInfo.parkingId", is(1)))
@@ -271,7 +271,7 @@ public class ParkingControllerIT {
         when(dataRepository.fetchAllKeys()).thenReturn(Set.of(1, 2));
         when(dataRepository.get(1)).thenReturn(parkingData.getFirst());
 
-        mockMvc.perform(get("/parkings/stats/daily/collective")
+        mockMvc.perform(get("/stats/daily/collective")
                         .accept(MediaType.APPLICATION_JSON)
                         .queryParam("day_of_week", "MONDAY")
                         .queryParam("ids", "-7", "1", "100"))
@@ -287,7 +287,7 @@ public class ParkingControllerIT {
 
     @Test
     void getCollectiveDailyParkingStats_withMissingDayOfWeek_returnBadRequest() throws Exception {
-        mockMvc.perform(get("/parkings/stats/daily/collective"))
+        mockMvc.perform(get("/stats/daily/collective"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
@@ -296,7 +296,7 @@ public class ParkingControllerIT {
     void getCollectiveWeeklyParkingStats_withoutIdList_returnCorrectCollectiveWeeklyStats() throws Exception {
         when(dataRepository.values()).thenReturn(parkingData);
 
-        mockMvc.perform(get("/parkings/stats/weekly/collective"))
+        mockMvc.perform(get("/stats/weekly/collective"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
                 .andExpect(jsonPath("$[0].parkingInfo.parkingId", is(1)))

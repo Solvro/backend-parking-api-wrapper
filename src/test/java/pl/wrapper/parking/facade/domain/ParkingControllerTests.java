@@ -81,7 +81,7 @@ public class ParkingControllerTests {
                 .build();
         when(parkingService.getClosestParking(address)).thenReturn(Result.success(parking));
 
-        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingId", is(parking.parkingId())))
                 .andExpect(jsonPath("$.name", is(parking.name())))
@@ -97,7 +97,7 @@ public class ParkingControllerTests {
         ParkingError.ParkingNotFoundByAddress error = new ParkingError.ParkingNotFoundByAddress(address);
         when(parkingService.getClosestParking(address)).thenReturn(Result.failure(error));
 
-        mockMvc.perform(get("/parkings/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/address").queryParam("address", address).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
@@ -107,7 +107,7 @@ public class ParkingControllerTests {
         List<ParkingResponse> serviceResponse = List.of(parkingData.get(1), parkingData.get(2), parkingData.get(3));
         when(parkingService.getAllWithFreeSpots(null)).thenReturn(serviceResponse);
 
-        String jsonResponse = mockMvc.perform(get("/parkings/free").accept(MediaType.APPLICATION_JSON))
+        String jsonResponse = mockMvc.perform(get("/free").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -127,7 +127,7 @@ public class ParkingControllerTests {
         when(parkingService.getAllWithFreeSpots(true)).thenReturn(serviceResponse);
 
         String jsonResponse = mockMvc.perform(
-                        get("/parkings/free").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
+                        get("/free").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -147,7 +147,7 @@ public class ParkingControllerTests {
         when(parkingService.getAllWithFreeSpots(true)).thenReturn(serviceResponse);
 
         String jsonResponse = mockMvc.perform(
-                        get("/parkings/free").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
+                        get("/free").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -163,7 +163,7 @@ public class ParkingControllerTests {
         when(parkingService.getAllWithFreeSpots(false)).thenReturn(serviceResponse);
 
         String jsonResponse = mockMvc.perform(
-                        get("/parkings/free").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
+                        get("/free").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -182,7 +182,7 @@ public class ParkingControllerTests {
         Result<ParkingResponse> serviceResponse = Result.success(parkingData.get(1));
         when(parkingService.getWithTheMostFreeSpots(null)).thenReturn(serviceResponse);
 
-        mockMvc.perform(get("/parkings/free/top").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/free/top").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.freeSpots").value(325))
                 .andExpect(jsonPath("$.symbol").value("P2"));
@@ -193,7 +193,7 @@ public class ParkingControllerTests {
         Result<ParkingResponse> serviceResponse = Result.success(parkingData.get(3));
         when(parkingService.getWithTheMostFreeSpots(true)).thenReturn(serviceResponse);
 
-        mockMvc.perform(get("/parkings/free/top").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/free/top").queryParam("opened", "true").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.freeSpots").value(51))
                 .andExpect(jsonPath("$.symbol").value("P4"));
@@ -204,7 +204,7 @@ public class ParkingControllerTests {
         Result<ParkingResponse> serviceResponse = Result.success(parkingData.get(1));
         when(parkingService.getWithTheMostFreeSpots(false)).thenReturn(serviceResponse);
 
-        mockMvc.perform(get("/parkings/free/top").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/free/top").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.freeSpots").value(325))
                 .andExpect(jsonPath("$.symbol").value("P2"));
@@ -215,7 +215,7 @@ public class ParkingControllerTests {
         Result<ParkingResponse> serviceResponse = Result.failure(new ParkingError.NoFreeParkingSpotsAvailable());
         when(parkingService.getWithTheMostFreeSpots(false)).thenReturn(serviceResponse);
 
-        mockMvc.perform(get("/parkings/free/top").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/free/top").queryParam("opened", "false").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }
