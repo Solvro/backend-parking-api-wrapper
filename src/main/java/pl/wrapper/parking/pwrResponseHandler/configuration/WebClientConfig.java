@@ -9,6 +9,9 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.wrapper.parking.infrastructure.exception.PwrApiNotRespondingException;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+
+import java.time.Duration;
 
 @Configuration
 class WebClientConfig {
@@ -26,6 +29,7 @@ class WebClientConfig {
                 .baseUrl("https://iparking.pwr.edu.pl/modules/iparking/scripts/ipk_operations.php")
                 .defaultHeaders(httpHeaders -> httpHeaders.addAll(headers))
                 .filter(ExchangeFilterFunction.ofResponseProcessor(WebClientConfig::responseFilter))
+                .filter(addRetryFilter())
                 .build();
     }
 
@@ -34,5 +38,12 @@ class WebClientConfig {
             return response.bodyToMono(String.class)
                     .flatMap(body -> Mono.error(new PwrApiNotRespondingException(body)));
         return Mono.just(response);
+    }
+
+    private static ExchangeFilterFunction addRetryFilter() {
+        return (request, next) -> next.exchange(request)
+                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2))
+                        .filter(throwable -> throwable instanceof PwrApiNotRespondingException)
+                );
     }
 }

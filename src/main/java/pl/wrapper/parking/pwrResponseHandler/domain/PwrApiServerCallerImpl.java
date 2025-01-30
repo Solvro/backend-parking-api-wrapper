@@ -28,7 +28,7 @@ public class PwrApiServerCallerImpl implements PwrApiServerCaller {
         return parsedData;
     }
 
-    @CacheEvict("parkingListCache")
+    @CacheEvict(value = "parkingListCache", allEntries = true)
     @Scheduled(fixedRate = CACHE_TTL_MIN, timeUnit = TimeUnit.MINUTES)
     public void flushCache() {
         log.info("Cache flushed. New data can be fetched.");
