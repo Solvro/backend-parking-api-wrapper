@@ -34,7 +34,6 @@ import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
-@RequestMapping("/parkings")
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -43,7 +42,7 @@ public class ParkingController {
     private final ParkingService parkingService;
 
     @Operation(
-            summary = "get parking statistics",
+            summary = "Get parking statistics",
             description = "Fetch statistics for specified parking IDs, day of week, and time",
             parameters = {
                 @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
@@ -91,7 +90,7 @@ public class ParkingController {
     }
 
     @Operation(
-            summary = "get daily parking statistics",
+            summary = "Get daily parking statistics",
             description = "Fetch daily statistics for specified parking IDs and day of week",
             parameters = {
                 @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
@@ -132,7 +131,7 @@ public class ParkingController {
     }
 
     @Operation(
-            summary = "get weekly parking statistics",
+            summary = "Get weekly parking statistics",
             description = "Fetch weekly statistics for specified parking IDs",
             parameters = {
                 @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
@@ -167,7 +166,7 @@ public class ParkingController {
     }
 
     @Operation(
-            summary = "get collective daily parking statistics",
+            summary = "Get collective daily parking statistics",
             description = "Fetch daily statistics for specified parking IDs and day of week for each time interval",
             parameters = {
                 @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
@@ -216,7 +215,7 @@ public class ParkingController {
     }
 
     @Operation(
-            summary = "get collective weekly parking statistics",
+            summary = "Get collective weekly parking statistics",
             description = "Fetch weekly statistics for specified parking IDs for each time interval of each day",
             parameters = {
                 @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
@@ -250,7 +249,7 @@ public class ParkingController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "get list of parking lots with free spots from all/opened/closed parking lots")
+    @Operation(summary = "Get list of parking lots with free spots from all/opened/closed.")
     @ApiResponse(
             responseCode = "200",
             description = "list of parking lots",
@@ -266,7 +265,7 @@ public class ParkingController {
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
-    @Operation(summary = "get parking with the most free spots from all/opened/closed parking lots")
+    @Operation(summary = "Get parking lot with the most free spots from all/opened/closed parking lots.")
     @ApiResponse(
             responseCode = "200",
             description = "parking found",
@@ -286,7 +285,7 @@ public class ParkingController {
     }
 
     @Operation(
-            summary = "find the closest parking by address",
+            summary = "Find the closest parking by given address.",
             parameters =
                     @Parameter(
                             name = "address",
@@ -317,7 +316,7 @@ public class ParkingController {
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @Operation(summary = "get parking by name if opened")
+    @Operation(summary = "Fetch a parking lot by name.")
     @ApiResponse(
             responseCode = "200",
             description = "parking found",
@@ -337,7 +336,7 @@ public class ParkingController {
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @Operation(summary = "get parking by id if opened")
+    @Operation(summary = "Fetch a parking lot by id.")
     @ApiResponse(
             responseCode = "200",
             description = "parking found",
@@ -357,7 +356,7 @@ public class ParkingController {
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @Operation(summary = "get parking by symbol if opened")
+    @Operation(summary = "Fetch a parking lot by symbol.")
     @ApiResponse(
             responseCode = "200",
             description = "parking found",
@@ -377,7 +376,7 @@ public class ParkingController {
         return handleResult(result, HttpStatus.OK, request.getRequestURI());
     }
 
-    @Operation(summary = "get list of parking lots by name, id, symbol, if opened and has free spots")
+    @Operation(summary = "Get list of parking lots by name/id/symbol/if opened/has free spots")
     @ApiResponse(
             responseCode = "200",
             description = "list with parking lots",
