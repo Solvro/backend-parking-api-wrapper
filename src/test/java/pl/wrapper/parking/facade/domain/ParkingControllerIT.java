@@ -8,13 +8,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -79,7 +77,8 @@ public class ParkingControllerIT {
                                 Map.of(
                                         LocalTime.of(10, 0), new AvailabilityData(1, 0.8),
                                         LocalTime.of(12, 0), new AvailabilityData(1, 0.5)),
-                                TUESDAY, Map.of(LocalTime.of(10, 0), new AvailabilityData(1, 0.7))))
+                                TUESDAY,
+                                Map.of(LocalTime.of(10, 0), new AvailabilityData(1, 0.7))))
                         .build(),
                 ParkingData.builder()
                         .parkingId(2)
@@ -250,8 +249,7 @@ public class ParkingControllerIT {
     void getWeeklyParkingStats_withEmptyIdList_returnCorrectWeeklyStats() throws Exception {
         when(dataRepository.values()).thenReturn(parkingData);
 
-        mockMvc.perform(get("/parkings/stats/weekly")
-                        .accept(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/parkings/stats/weekly").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()", is(2)))
                 .andExpect(jsonPath("$[0].parkingInfo.parkingId", is(1)))

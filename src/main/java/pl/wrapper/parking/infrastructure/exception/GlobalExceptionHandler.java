@@ -38,9 +38,10 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
-    public ResponseEntity<ErrorWrapper> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException ex, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        String message = String.format("'%s' parameter is missing",  ex.getParameterName());
+        String message = String.format("'%s' parameter is missing", ex.getParameterName());
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), ex);
         return new ResponseEntity<>(errorWrapper, status);
