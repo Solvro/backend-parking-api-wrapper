@@ -1,8 +1,5 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
@@ -12,6 +9,13 @@ import org.springframework.web.reactive.function.client.WebClient;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Mono;
+
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 @Profile("prod")
 @Component
@@ -68,6 +72,7 @@ public final class PwrApiCaller {
                             currentParking.getOrDefault("address", "unknown").strip(),
                             Float.parseFloat(currentParking.get("geo_lat")),
                             Float.parseFloat(currentParking.get("geo_lan"))))
+                    .trend(Short.parseShort(currentParking.getOrDefault("trend", "0")))
                     .build();
             returnList.add(currentResponse);
         }

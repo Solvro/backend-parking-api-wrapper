@@ -1,12 +1,13 @@
 package pl.wrapper.parking.facade.dto.stats.weekly;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.Map;
 import org.springframework.http.MediaType;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.Map;
 
 public record CollectiveWeeklyParkingStats(
         @Schema(implementation = ParkingInfo.class) ParkingInfo parkingInfo,

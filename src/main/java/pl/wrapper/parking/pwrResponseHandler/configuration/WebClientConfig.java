@@ -10,9 +10,6 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.wrapper.parking.infrastructure.exception.PwrApiNotRespondingException;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
-
-import java.time.Duration;
 
 @Configuration
 class WebClientConfig {

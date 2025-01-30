@@ -2,9 +2,10 @@ package pl.wrapper.parking.pwrResponseHandler.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalTime;
 import lombok.Builder;
 import org.springframework.lang.Nullable;
+
+import java.time.LocalTime;
 
 @Builder
 public record ParkingResponse(
@@ -15,7 +16,8 @@ public record ParkingResponse(
         @Schema(example = "WRO") String symbol,
         @Schema(type = "string", format = "time", example = "08:00:00") @Nullable LocalTime openingHours,
         @Schema(type = "string", format = "time", example = "22:00:00") @Nullable LocalTime closingHours,
-        @Schema(implementation = Address.class) Address address) {
+        @Schema(implementation = Address.class) Address address,
+        @Schema(type = "short") short trend) {
 
     @JsonIgnore
     public boolean isOpened() {

@@ -1,22 +1,12 @@
 package pl.wrapper.parking.facade.domain;
 
-import static java.time.temporal.TemporalAdjusters.*;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.facade.dto.NominatimLocation;
-import pl.wrapper.parking.facade.dto.stats.*;
+import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
 import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
@@ -33,6 +23,17 @@ import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
 
 @Service
 @Slf4j

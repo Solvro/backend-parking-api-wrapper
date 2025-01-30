@@ -1,10 +1,6 @@
 package pl.wrapper.parking.infrastructure.nominatim.configuration;
 
-import static org.assertj.core.api.Assertions.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.util.List;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -18,6 +14,11 @@ import pl.wrapper.parking.infrastructure.exception.NominatimClientException;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ContextConfiguration(classes = NominatimClientConfig.class)

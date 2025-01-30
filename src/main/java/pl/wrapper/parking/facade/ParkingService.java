@@ -1,8 +1,5 @@
 package pl.wrapper.parking.facade;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.List;
 import org.springframework.lang.Nullable;
 import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
@@ -11,6 +8,10 @@ import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
 
 public interface ParkingService {
     List<ParkingStatsResponse> getParkingStats(

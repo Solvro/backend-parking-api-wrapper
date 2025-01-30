@@ -1,8 +1,8 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
-import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
 
 //@Component("parkingEndpointRepository")
 public class ParkingEndpointRepository extends InMemoryRepositoryImpl<Integer, DummyObject> { // <Key, value>
