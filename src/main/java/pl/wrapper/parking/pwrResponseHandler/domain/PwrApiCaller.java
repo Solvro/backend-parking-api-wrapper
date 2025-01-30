@@ -4,6 +4,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Mono;
 
+@Profile("prod")
 @Component
 @RequiredArgsConstructor
 public final class PwrApiCaller {
@@ -74,7 +76,6 @@ public final class PwrApiCaller {
 
     private static LocalTime getParsedTime(@Nullable String time) {
         if (time == null) return null;
-
         return LocalTime.parse(time, DateTimeFormatter.ISO_LOCAL_TIME);
     }
 }

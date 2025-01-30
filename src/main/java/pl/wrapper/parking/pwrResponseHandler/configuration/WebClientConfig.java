@@ -2,6 +2,7 @@ package pl.wrapper.parking.pwrResponseHandler.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -16,6 +17,7 @@ import java.time.Duration;
 @Configuration
 class WebClientConfig {
 
+    @Profile("prod")
     @Bean
     public WebClient webClient() {
         MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
@@ -28,22 +30,22 @@ class WebClientConfig {
         return WebClient.builder()
                 .baseUrl("https://iparking.pwr.edu.pl/modules/iparking/scripts/ipk_operations.php")
                 .defaultHeaders(httpHeaders -> httpHeaders.addAll(headers))
+                .filter(buildRetryFilter())
                 .filter(ExchangeFilterFunction.ofResponseProcessor(WebClientConfig::responseFilter))
-                .filter(addRetryFilter())
                 .build();
     }
 
-    private static Mono<ClientResponse> responseFilter(ClientResponse response) {
+    static Mono<ClientResponse> responseFilter(ClientResponse response) {
         if (response.statusCode().isError())
             return response.bodyToMono(String.class)
                     .flatMap(body -> Mono.error(new PwrApiNotRespondingException(body)));
         return Mono.just(response);
     }
 
-    private static ExchangeFilterFunction addRetryFilter() {
+    static ExchangeFilterFunction buildRetryFilter() {
         return (request, next) -> next.exchange(request)
-                .retryWhen(Retry.fixedDelay(3, Duration.ofSeconds(2))
-                        .filter(throwable -> throwable instanceof PwrApiNotRespondingException)
-                );
+                .onErrorResume(PwrApiNotRespondingException.class, ex -> next.exchange(request)
+                )
+                .retry(2);
     }
 }

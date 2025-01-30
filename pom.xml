@@ -97,9 +97,7 @@
         <artifactId>spotless-maven-plugin</artifactId>
         <version>2.41.1</version>
         <configuration>
-          <!-- Java formatter -->
           <java>
-            <!-- These are the defaults, you can override if you want -->
             <includes>
               <include>src/main/java/**/*.java</include>
               <include>src/test/java/**/*.java</include>
@@ -109,15 +107,9 @@
               <version>2.39.0</version>
               <style>PALANTIR</style>
             </palantirJavaFormat>
-
             <importOrder/>
-            <!-- standard import order -->
-
             <removeUnusedImports/>
-
             <formatAnnotations/>
-            <!-- fixes formatting of type annotations -->
-
           </java>
 
           <!--Maven POM formatter-->
