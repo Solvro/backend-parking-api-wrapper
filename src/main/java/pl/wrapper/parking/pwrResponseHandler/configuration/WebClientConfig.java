@@ -41,8 +41,10 @@ class WebClientConfig {
 
     static ExchangeFilterFunction buildRetryFilter() {
         return (request, next) -> next.exchange(request)
-                .onErrorResume(PwrApiNotRespondingException.class, ex -> next.exchange(request)
-                )
+                .onErrorResume(PwrApiNotRespondingException.class, ex -> {
+                    System.out.println("retry");
+                    return next.exchange(request);
+                })
                 .retry(2);
     }
 }

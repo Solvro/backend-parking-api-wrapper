@@ -22,16 +22,26 @@ public class PwrApiServerCallerImpl implements PwrApiServerCaller {
 
     @Override
     @Cacheable("parkingListCache")
-    public List<ParkingResponse> fetchData() {
+    public List<ParkingResponse> fetchParkingData() {
         log.info("Fetching new data from Pwr api.");
-        List<ParkingResponse> parsedData = pwrApiCaller.fetchParkingPlaces().block();
-        log.info("Fetch successful. Cache updated.");
-        return parsedData;
+        List<ParkingResponse> data = pwrApiCaller.fetchParkingPlaces().block();
+        log.info("Data fetched successfully");
+        return data;
     }
 
-    @CacheEvict(value = "parkingListCache", allEntries = true)
+    @CacheEvict(value = {"parkingListCache", "chartCache"}, allEntries = true)
     @Scheduled(fixedRate = CACHE_TTL_MIN, timeUnit = TimeUnit.MINUTES)
     public void flushCache() {
         log.info("Cache flushed. New data can be fetched.");
+    }
+
+
+    @Override
+    @Cacheable("chartCache")
+    public List<Object> getAllCharsForToday() {
+        log.info("Fetching new chart data from Pwr api.");
+        List<Object> charts = pwrApiCaller.fetchAllParkingCharts().block();
+        log.info("Charts fetched successfully");
+        return charts;
     }
 }

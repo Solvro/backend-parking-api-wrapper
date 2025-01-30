@@ -47,7 +47,7 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
 
         log.info("Saving parking data with rounded time: {}, day: {}", currentTime, currentDay);
 
-        List<ParkingResponse> parkings = pwrApiServerCaller.fetchData();
+        List<ParkingResponse> parkings = pwrApiServerCaller.fetchParkingData();
         for (ParkingResponse parking : parkings) {
             int parkingId = parking.parkingId();
             double availability = (double) parking.freeSpots() / parking.totalSpots();

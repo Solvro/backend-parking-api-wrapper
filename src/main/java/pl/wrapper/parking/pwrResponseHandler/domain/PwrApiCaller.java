@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalTime;
@@ -28,7 +29,7 @@ public final class PwrApiCaller {
         return webClient
                 .post()
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue(createDummyMap())
+                .bodyValue(createDummyParkingMap())
                 .retrieve()
                 .bodyToMono(HashMap.class)
                 .flatMap(parkingResponses -> {
@@ -40,7 +41,7 @@ public final class PwrApiCaller {
                 });
     }
 
-    private static HashMap<String, String> createDummyMap() {
+    private static HashMap<String, String> createDummyParkingMap() {
         HashMap<String, String> body = new HashMap<>();
         body.put("o", "get_parks");
         return body;
@@ -82,5 +83,30 @@ public final class PwrApiCaller {
     private static LocalTime getParsedTime(@Nullable String time) {
         if (time == null) return null;
         return LocalTime.parse(time, DateTimeFormatter.ISO_LOCAL_TIME);
+    }
+
+    private static HashMap<String, String> createDummyChartMap(int forId) {
+        HashMap<String, String> body = new HashMap<>();
+        body.put("o", "get_today_chart");
+        body.put("i", String.valueOf(forId));
+        return body;
+    }
+
+    private static final Integer[] ID_MAPPER = {4, 2, 5, 6, 7};
+
+    private Mono<Object> fetchParkingChart(int forId) {
+        return webClient
+                .post()
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(createDummyChartMap(forId))
+                .retrieve()
+                .bodyToMono(HashMap.class)
+                .flatMap(Mono::just);
+    }
+
+    public Mono<List<Object>> fetchAllParkingCharts() {
+        return Flux.fromArray(ID_MAPPER)
+                .flatMap(this::fetchParkingChart)
+                .collectList();
     }
 }

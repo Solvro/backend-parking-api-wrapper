@@ -10,8 +10,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
+
+import java.net.ConnectException;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -22,6 +27,24 @@ class GlobalExceptionHandler {
     public ResponseEntity<ErrorWrapper> handleGeneralException(Exception e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message = "An error has occurred";
+        ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
+        logError(message, request.getRequestURI(), e);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ErrorWrapper> handleValidationException(HandlerMethodValidationException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = "Validation error for method parameters/variables";
+        ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
+        logError(message, request.getRequestURI(), e);
+        return new ResponseEntity<>(errorWrapper, status);
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorWrapper> handleNoResourceException(NoResourceFoundException e, HttpServletRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        String message = "Invalid call URL";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
         logError(message, request.getRequestURI(), e);
         return new ResponseEntity<>(errorWrapper, status);
@@ -66,9 +89,9 @@ class GlobalExceptionHandler {
         return new ResponseEntity<>(errorWrapper, status);
     }
 
-    @ExceptionHandler(PwrApiNotRespondingException.class)
+    @ExceptionHandler({PwrApiNotRespondingException.class, WebClientRequestException.class, ConnectException.class})
     public ResponseEntity<ErrorWrapper> handlePwrApiNotRespondingException(
-            PwrApiNotRespondingException e, HttpServletRequest request) {
+            Exception e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
         String message = "PWR Api not responding";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
