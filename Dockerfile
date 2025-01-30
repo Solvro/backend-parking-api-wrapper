@@ -1,7 +1,6 @@
 FROM docker.io/library/maven:3.9.9-eclipse-temurin-21 AS build
-COPY .git /build/.git
+COPY . /build/
 WORKDIR /build
-RUN git reset --hard
 RUN mvn -B package --file pom.xml
 
 FROM docker.io/library/openjdk:21
