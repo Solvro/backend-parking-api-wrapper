@@ -74,6 +74,7 @@ public final class PwrApiCaller {
                             Float.parseFloat(currentParking.get("geo_lat")),
                             Float.parseFloat(currentParking.get("geo_lan"))))
                     .trend(Short.parseShort(currentParking.getOrDefault("trend", "0")))
+                    .urlToPhoto(currentParking.getOrDefault("photo", "unknown"))
                     .build();
             returnList.add(currentResponse);
         }

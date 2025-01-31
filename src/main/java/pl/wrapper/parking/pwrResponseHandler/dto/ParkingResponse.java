@@ -17,7 +17,8 @@ public record ParkingResponse(
         @Schema(type = "string", format = "time", example = "08:00:00") @Nullable LocalTime openingHours,
         @Schema(type = "string", format = "time", example = "22:00:00") @Nullable LocalTime closingHours,
         @Schema(implementation = Address.class) Address address,
-        @Schema(type = "short") short trend) {
+        @Schema(type = "short", example = "0") short trend,
+        @Schema(type = "string", example = "/images/photos/geo-l01.jpg") String urlToPhoto) {
 
     @JsonIgnore
     public boolean isOpened() {
