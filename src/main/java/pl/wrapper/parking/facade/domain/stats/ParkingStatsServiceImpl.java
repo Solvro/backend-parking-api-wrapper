@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.stats;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;

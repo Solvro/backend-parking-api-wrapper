@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.stats;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
