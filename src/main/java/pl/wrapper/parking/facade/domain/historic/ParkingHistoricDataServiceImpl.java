@@ -1,5 +1,6 @@
 package pl.wrapper.parking.facade.domain.historic;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -26,27 +27,32 @@ import java.util.List;
 @Transactional(readOnly = true)
 class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
 
-
     @PersistenceContext
     private EntityManager em;
 
-    @Value("${historic.data-update.minutes}")
-    private Integer intervalLength;
+    private final int intervalLength;
 
     private final int intervalCount;
 
-    private final TypedQuery<HistoricDataEntry> periodQuery;
+    private TypedQuery<HistoricDataEntry> periodQuery;
 
-    private final TypedQuery<HistoricDataEntry> fromQuery;
+    private TypedQuery<HistoricDataEntry> fromQuery;
 
-    private final TypedQuery<short[][]> atQuery;
+    private TypedQuery<short[][]> atQuery;
 
     private final PwrApiServerCaller pwrApiServerCaller;
 
     private final List<String> formattedStartTimes;
 
-    public ParkingHistoricDataServiceImpl(PwrApiServerCaller pwrApiServerCaller) {
+    public ParkingHistoricDataServiceImpl(PwrApiServerCaller pwrApiServerCaller,  @Value("${historic.data-update.minutes}") Integer intervalLength) {
         this.pwrApiServerCaller = pwrApiServerCaller;
+        this.intervalLength = intervalLength;
+        intervalCount = calculateTimeframesCount(intervalLength);
+        this.formattedStartTimes = getFormattedStartTimes(intervalLength, intervalCount);
+    }
+
+    @PostConstruct
+    void init() {
         periodQuery = em.createQuery(
                 "SELECT data FROM HistoricDataEntry data WHERE data.date >= :from AND data.date <= :to",
                 HistoricDataEntry.class);
@@ -56,8 +62,6 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
         atQuery = em.createQuery(
                 "SELECT data.parkingInfo FROM HistoricDataEntry data WHERE data.date = :at",
                 short[][].class);
-        intervalCount = calculateTimeframesCount(intervalLength);
-        this.formattedStartTimes = getFormattedStartTimes(intervalLength, intervalCount);
     }
 
     @Override
