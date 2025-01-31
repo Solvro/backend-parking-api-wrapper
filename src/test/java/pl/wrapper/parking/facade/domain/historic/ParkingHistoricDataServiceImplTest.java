@@ -1,12 +1,15 @@
 package pl.wrapper.parking.facade.domain.historic;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayParkingData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
@@ -19,13 +22,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ParkingHistoricDataServiceImplTest {
 
     @Mock
-    private TypedQuery<short[][]> atQuery;
+    private PwrApiServerCaller pwrApiServerCaller;
+
+    private final Integer intervalLength = 480;
+
+    @Mock
+    private Query atQuery;
 
     @Mock
     private TypedQuery<HistoricDataEntry> periodQuery;
@@ -36,12 +45,8 @@ class ParkingHistoricDataServiceImplTest {
     @Mock
     private EntityManager em;
 
-    @Mock
-    private PwrApiServerCaller pwrApiServerCaller;
-
-    private final Integer intervalLength = 480;
-
     @InjectMocks
+    @Spy
     private ParkingHistoricDataServiceImpl parkingHistoricDataService = new ParkingHistoricDataServiceImpl(pwrApiServerCaller, intervalLength);
 
     @Test
@@ -60,7 +65,7 @@ class ParkingHistoricDataServiceImplTest {
                         new TimestampEntry("16:00", (short) 25)
                 )));
 
-        when(atQuery.setParameter("at", testDate)).thenReturn(atQuery);
+        doReturn(atQuery).when(parkingHistoricDataService).createAtQuery(testDate);
         when(atQuery.getResultList()).thenReturn(testList);
         HistoricDayParkingData actualData = parkingHistoricDataService.getDataForDay(testDate, 1);
 
@@ -71,7 +76,7 @@ class ParkingHistoricDataServiceImplTest {
     @Test
     void testGetDataForDay_EmptyData_ReturnsNull() {
         LocalDate testDate = LocalDate.of(2023, 10, 1);
-        when(atQuery.setParameter("at", testDate)).thenReturn(atQuery);
+        doReturn(atQuery).when(parkingHistoricDataService).createAtQuery(testDate);
         when(atQuery.getResultList()).thenReturn(List.of());
         List<HistoricDayParkingData> actualData = parkingHistoricDataService.getDataForDay(testDate);
 
@@ -109,7 +114,7 @@ class ParkingHistoricDataServiceImplTest {
                         )))
         );
 
-        when(atQuery.setParameter("at", testDate)).thenReturn(atQuery);
+        doReturn(atQuery).when(parkingHistoricDataService).createAtQuery(testDate);
         when(atQuery.getResultList()).thenReturn(testList);
         List<HistoricDayParkingData> actualData = parkingHistoricDataService.getDataForDay(testDate);
 
@@ -135,8 +140,7 @@ class ParkingHistoricDataServiceImplTest {
                 })
         );
 
-        when(periodQuery.setParameter("from", fromDate)).thenReturn(periodQuery);
-        when(periodQuery.setParameter("to", toDate)).thenReturn(periodQuery);
+        doReturn(periodQuery).when(parkingHistoricDataService).createPeriodQuery(fromDate, toDate);
         when(periodQuery.getResultList()).thenReturn(testData);
 
         HistoricPeriodParkingData actualData = parkingHistoricDataService.getDataForPeriod(fromDate, toDate, parkingId);
@@ -158,8 +162,7 @@ class ParkingHistoricDataServiceImplTest {
         LocalDate toDate = LocalDate.of(2023, 10, 3);
         int parkingId = 1;
 
-        when(periodQuery.setParameter("from", fromDate)).thenReturn(periodQuery);
-        when(periodQuery.setParameter("to", toDate)).thenReturn(periodQuery);
+        doReturn(periodQuery).when(parkingHistoricDataService).createPeriodQuery(fromDate, toDate);
         when(periodQuery.getResultList()).thenReturn(List.of());
 
         HistoricPeriodParkingData actualData = parkingHistoricDataService.getDataForPeriod(fromDate, toDate, parkingId);
@@ -178,7 +181,7 @@ class ParkingHistoricDataServiceImplTest {
                 })
         );
 
-        when(fromQuery.setParameter("from", fromDate)).thenReturn(fromQuery);
+        doReturn(fromQuery).when(parkingHistoricDataService).createFromQuery(fromDate);
         when(fromQuery.getResultList()).thenReturn(testData);
 
         HistoricPeriodParkingData actualData = parkingHistoricDataService.getDataForPeriod(fromDate, null, parkingId);

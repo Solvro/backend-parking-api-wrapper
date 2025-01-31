@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${PARKINGIAPI_DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${PARKINGIAPI_DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${PARKINGIAPI_DB_PASSWORD}
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15.4
+    environment:
+      POSTGRES_USER: ${PARKINGIAPI_DB_USERNAME}
+      POSTGRES_PASSWORD: ${PARKINGIAPI_DB_PASSWORD}
+      POSTGRES_DB: ${PARKINGIAPI_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -3,6 +3,7 @@ package pl.wrapper.parking.facade.domain.historic;
 import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,12 +35,6 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
 
     private final int intervalCount;
 
-    private TypedQuery<HistoricDataEntry> periodQuery;
-
-    private TypedQuery<HistoricDataEntry> fromQuery;
-
-    private TypedQuery<short[][]> atQuery;
-
     private final PwrApiServerCaller pwrApiServerCaller;
 
     private final List<String> formattedStartTimes;
@@ -51,50 +46,56 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
         this.formattedStartTimes = getFormattedStartTimes(intervalLength, intervalCount);
     }
 
-    @PostConstruct
-    void init() {
-        periodQuery = em.createQuery(
-                "SELECT data FROM HistoricDataEntry data WHERE data.date >= :from AND data.date <= :to",
-                HistoricDataEntry.class);
-        fromQuery = em.createQuery(
-                "SELECT data FROM HistoricDataEntry data WHERE data.date >= :from",
-                HistoricDataEntry.class);
-        atQuery = em.createQuery(
-                "SELECT data.parkingInfo FROM HistoricDataEntry data WHERE data.date = :at",
-                short[][].class);
-    }
-
+    @SuppressWarnings("unchecked")
     @Override
     public List<HistoricDayParkingData> getDataForDay(LocalDate forDate) {
-        List<short[][]> fetchedData = atQuery.setParameter("at", forDate).getResultList();
+        List<short[][]> fetchedData = (List<short[][]>) createAtQuery(forDate).getResultList();
         if (fetchedData.isEmpty()) return null;
         return parseTableForDay(fetchedData.getFirst(), forDate);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public HistoricDayParkingData getDataForDay(LocalDate forDate, int parkingId) {
-        List<short[][]> fetchedData = atQuery.setParameter("at", forDate).getResultList();
+        List<short[][]> fetchedData = (List<short[][]>) createAtQuery(forDate).getResultList();
         if (fetchedData.isEmpty()) return null;
         return parseTableForDay(parkingId, fetchedData.getFirst(), forDate);
     }
 
     @Override
     public HistoricPeriodParkingData getDataForPeriod(LocalDate fromDate, LocalDate toDate, int parkingId) {
-        List<HistoricDataEntry> fetchedData;
-        if (toDate == null) fetchedData = fromQuery.setParameter("from", fromDate).getResultList();
-        else fetchedData = periodQuery.setParameter("from", fromDate).setParameter("to", toDate).getResultList();
-        if (fetchedData.isEmpty()) return null;
+        List<HistoricDataEntry> fetchedData = fetchDataForPeriod(fromDate, toDate);
+        if (fetchedData == null) return null;
         return parseTableForPeriod(fetchedData, parkingId);
     }
 
     @Override
     public List<HistoricPeriodParkingData> getDataForPeriod(LocalDate fromDate, LocalDate toDate) {
-        List<HistoricDataEntry> fetchedData;
-        if (toDate == null) fetchedData = fromQuery.setParameter("from", fromDate).getResultList();
-        else fetchedData = periodQuery.setParameter("from", fromDate).setParameter("to", toDate).getResultList();
-        if (fetchedData.isEmpty()) return null;
+        List<HistoricDataEntry> fetchedData = fetchDataForPeriod(fromDate, toDate);
+        if (fetchedData == null) return null;
         return parseTableForPeriod(fetchedData);
     }
+
+    List<HistoricDataEntry> fetchDataForPeriod(LocalDate fromDate, LocalDate toDate) {
+        List<HistoricDataEntry> fetchedData;
+        if (toDate == null) fetchedData = createFromQuery(fromDate).getResultList();
+        else fetchedData = createPeriodQuery(fromDate, toDate).getResultList();
+        if (fetchedData.isEmpty()) return null;
+        return fetchedData;
+    }
+
+    TypedQuery<HistoricDataEntry> createPeriodQuery(LocalDate fromDate, LocalDate toDate) {
+        return em.createNamedQuery("HistoricData.periodQuery", HistoricDataEntry.class).setParameter("from", fromDate).setParameter("to", toDate);
+    }
+
+    TypedQuery<HistoricDataEntry> createFromQuery(LocalDate fromDate) {
+        return em.createNamedQuery("HistoricData.fromQuery", HistoricDataEntry.class).setParameter("from", fromDate);
+    }
+
+    Query createAtQuery(LocalDate atDate) {
+        return em.createNamedQuery("HistoricData.atQuery").setParameter("at", atDate);
+    }
+
 
     private HistoricDayParkingData parseTableForDay(int parkingId, short[][] dataTable, LocalDate forDate) {
         if (parkingId >= dataTable.length) return null;

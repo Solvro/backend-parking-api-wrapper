@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ParkingController.class)
-@ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade"})
+@ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade.main"})
 public class ParkingControllerTest {
     @Autowired
     private MockMvc mockMvc;

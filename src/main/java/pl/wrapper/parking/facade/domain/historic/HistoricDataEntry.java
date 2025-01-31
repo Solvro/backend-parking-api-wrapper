@@ -1,10 +1,7 @@
 package pl.wrapper.parking.facade.domain.historic;
 
 import io.hypersistence.utils.hibernate.type.array.IntArrayType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +15,20 @@ import java.time.LocalDate;
 @Table(name = "historic_data")
 @AllArgsConstructor
 @NoArgsConstructor
+@NamedQueries({
+        @NamedQuery(
+                name = "HistoricData.periodQuery",
+                query = "SELECT data FROM HistoricDataEntry data WHERE data.date >= :from AND data.date <= :to"
+        ),
+        @NamedQuery(
+                name = "HistoricData.fromQuery",
+                query = "SELECT data FROM HistoricDataEntry data WHERE data.date >= :from"
+        )
+})
+@NamedNativeQuery(
+        name = "HistoricData.atQuery",
+        query = "SELECT data_table FROM historic.historic_data WHERE date = :at"
+)
 class HistoricDataEntry {
 
     @Id
