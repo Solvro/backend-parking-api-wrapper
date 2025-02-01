@@ -1,6 +1,5 @@
 package pl.wrapper.parking.facade.domain.historic;
 
-import jakarta.annotation.PostConstruct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -39,7 +38,7 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
 
     private final List<String> formattedStartTimes;
 
-    public ParkingHistoricDataServiceImpl(PwrApiServerCaller pwrApiServerCaller,  @Value("${historic.data-update.minutes}") Integer intervalLength) {
+    public ParkingHistoricDataServiceImpl(PwrApiServerCaller pwrApiServerCaller, @Value("${historic.data-update.minutes}") Integer intervalLength) {
         this.pwrApiServerCaller = pwrApiServerCaller;
         this.intervalLength = intervalLength;
         intervalCount = calculateTimeframesCount(intervalLength);
@@ -119,7 +118,7 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
 
     private List<TimestampEntry> getTimestampedList(short[][] dataTable, int parkingId) {
         int bound = dataTable[parkingId].length;
-        List<TimestampEntry> entryList = new ArrayList<>( bound+ 1);
+        List<TimestampEntry> entryList = new ArrayList<>(bound + 1);
         for (int j = 0; j < bound; j++)
             entryList.add(new TimestampEntry(formattedStartTimes.get(j), dataTable[parkingId][j]));
         return entryList;

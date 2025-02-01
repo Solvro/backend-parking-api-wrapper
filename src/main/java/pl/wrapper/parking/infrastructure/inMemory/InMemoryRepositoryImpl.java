@@ -5,7 +5,13 @@ import jakarta.annotation.PreDestroy;
 import org.springframework.core.serializer.support.SerializationFailedException;
 import org.springframework.scheduling.annotation.Scheduled;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -15,7 +21,7 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
 
     protected final transient File file;
     protected Map<K, V> dataMap;
-    protected V defaultValue;
+    protected final V defaultValue;
 
     public InMemoryRepositoryImpl(String filePath, Map<K, V> map, V defaultValue) {
         this.file = new File(filePath);

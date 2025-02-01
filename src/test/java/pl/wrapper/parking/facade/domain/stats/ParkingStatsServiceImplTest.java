@@ -24,7 +24,6 @@ import java.util.Set;
 
 import static java.time.DayOfWeek.*;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,7 +33,7 @@ public class ParkingStatsServiceImplTest {
     private ParkingDataRepository dataRepository;
 
     private ParkingStatsServiceImpl parkingStatsService;
-    
+
     private List<ParkingData> parkingData;
 
     @BeforeEach

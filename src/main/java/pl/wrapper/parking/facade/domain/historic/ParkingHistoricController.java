@@ -14,7 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingHistoricDataService;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayParkingData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
@@ -56,9 +60,9 @@ class ParkingHistoricController {
     @GetMapping(path = "/day/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HistoricDayParkingData> getHistoricDataForDayAndId(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("forDay") LocalDate forDay,
-            @PathVariable(name = "id") @Min(1) @Max(5) Integer parkingId){
+            @PathVariable(name = "id") @Min(1) @Max(5) Integer parkingId) {
         HistoricDayParkingData dataForDay = parkingHistoricDataService.getDataForDay(forDay, parkingId);
-        if(dataForDay == null) return ResponseEntity.notFound().build();
+        if (dataForDay == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForDay);
     }
 
@@ -89,9 +93,9 @@ class ParkingHistoricController {
             })
     @GetMapping(path = "/day", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<HistoricDayParkingData>> getHistoricDataForDay(
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("forDay") LocalDate forDay){
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("forDay") LocalDate forDay) {
         List<HistoricDayParkingData> dataForDay = parkingHistoricDataService.getDataForDay(forDay);
-        if(dataForDay == null) return ResponseEntity.notFound().build();
+        if (dataForDay == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForDay);
     }
 
@@ -106,7 +110,6 @@ class ParkingHistoricController {
                     @Parameter(
                             name = "toDate",
                             description = "Date in ISO date format",
-                            required = false,
                             example = "2025-08-29")
             },
             responses = {
@@ -125,9 +128,9 @@ class ParkingHistoricController {
     public ResponseEntity<HistoricPeriodParkingData> getHistoricDataForPeriodAndId(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("fromDate") LocalDate fromDate,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
-            @PathVariable(name = "id") @Min(1) @Max(5) Integer parkingId){
+            @PathVariable(name = "id") @Min(1) @Max(5) Integer parkingId) {
         HistoricPeriodParkingData dataForPeriod = parkingHistoricDataService.getDataForPeriod(fromDate, toDate, parkingId);
-        if(dataForPeriod == null) return ResponseEntity.notFound().build();
+        if (dataForPeriod == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForPeriod);
     }
 
@@ -142,7 +145,6 @@ class ParkingHistoricController {
                     @Parameter(
                             name = "toDate",
                             description = "Date in ISO date format",
-                            required = false,
                             example = "2025-08-29")
             },
             responses = {
@@ -164,9 +166,9 @@ class ParkingHistoricController {
     @GetMapping(path = "/period", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<HistoricPeriodParkingData>> getHistoricDataForPeriod(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("fromDate") LocalDate fromDate,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate){
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate) {
         List<HistoricPeriodParkingData> dataForPeriod = parkingHistoricDataService.getDataForPeriod(fromDate, toDate);
-        if(dataForPeriod == null) return ResponseEntity.notFound().build();
+        if (dataForPeriod == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForPeriod);
     }
 

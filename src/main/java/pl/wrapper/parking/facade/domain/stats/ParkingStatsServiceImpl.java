@@ -22,14 +22,21 @@ import java.math.RoundingMode;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 
 @Service
 record ParkingStatsServiceImpl(
         ParkingDataRepository dataRepository,
-        @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval) implements ParkingStatsService{
+        @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval) implements ParkingStatsService {
 
     @Override
     public List<ParkingStatsResponse> getParkingStats(

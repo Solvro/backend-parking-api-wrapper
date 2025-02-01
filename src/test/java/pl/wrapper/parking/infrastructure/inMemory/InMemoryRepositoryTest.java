@@ -5,20 +5,23 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class ParkingEndpointRepositoryTest {
+class InMemoryRepositoryTest {
 
-    private InMemoryRepositoryTest inMemoryRepository;
+    private InMemoryRepositoryTestImpl inMemoryRepository;
     private Integer id;
-    private DummyObject object;
+    private String value = "value";
     private static final String path = "data/statistics/tests";
 
-    static class InMemoryRepositoryTest extends ParkingEndpointRepository {
-        public InMemoryRepositoryTest() {
-            super(path);
+    static class InMemoryRepositoryTestImpl extends InMemoryRepositoryImpl<Integer, String> {
+        
+        public InMemoryRepositoryTestImpl(String filePath, Map<Integer, String> map, String defaultValue) {
+            super(filePath, map, defaultValue);
         }
 
         public void testSerialize() {
@@ -36,8 +39,8 @@ class ParkingEndpointRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        inMemoryRepository = new InMemoryRepositoryTest();
-        object = new DummyObject();
+        inMemoryRepository = new InMemoryRepositoryTestImpl(path, new HashMap<>(), null);
+        value = new String("value");
         id = 10;
     }
 
@@ -50,17 +53,17 @@ class ParkingEndpointRepositoryTest {
 
     @Test
     void shouldReturnObject() {
-        inMemoryRepository.add(id, object);
+        inMemoryRepository.add(id, value);
 
         int first = inMemoryRepository.fetchAllKeys().stream().findFirst().orElseThrow();
 
         assertEquals(first, id);
-        assertEquals(inMemoryRepository.get(first), object);
+        assertEquals(inMemoryRepository.get(first), value);
     }
 
     @Test
     void shouldSerializationRunCorrectly() {
-        inMemoryRepository.add(id, object);
+        inMemoryRepository.add(id, value);
 
         inMemoryRepository.testSerialize();
         inMemoryRepository.deleteData();
@@ -68,6 +71,6 @@ class ParkingEndpointRepositoryTest {
         assertTrue(inMemoryRepository.fetchAllKeys().isEmpty());
 
         inMemoryRepository.testDeserialize();
-        assertEquals(inMemoryRepository.get(id).s, object.s);
+        assertEquals(inMemoryRepository.get(id), value);
     }
 }

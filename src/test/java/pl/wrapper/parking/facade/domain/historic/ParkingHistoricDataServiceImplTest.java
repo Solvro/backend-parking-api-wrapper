@@ -9,7 +9,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayParkingData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
@@ -47,7 +46,7 @@ class ParkingHistoricDataServiceImplTest {
 
     @InjectMocks
     @Spy
-    private ParkingHistoricDataServiceImpl parkingHistoricDataService = new ParkingHistoricDataServiceImpl(pwrApiServerCaller, intervalLength);
+    private final ParkingHistoricDataServiceImpl parkingHistoricDataService = new ParkingHistoricDataServiceImpl(pwrApiServerCaller, intervalLength);
 
     @Test
     void testGetDataForDay_ValidDate_ReturnsParkingData() {
