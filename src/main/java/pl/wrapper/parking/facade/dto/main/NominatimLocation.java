@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.dto;
+package pl.wrapper.parking.facade.dto.main;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

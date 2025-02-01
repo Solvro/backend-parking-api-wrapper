@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.stats;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,7 +35,7 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Parking API Stats", description = "Endpoints for parking statistics")
 @RequestMapping("/stats")
-public class ParkingStatsController {
+class ParkingStatsController {
 
     private final ParkingStatsService parkingStatsService;
 

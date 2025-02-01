@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.stats;
 
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,7 +21,6 @@ import java.util.Set;
 import static java.time.DayOfWeek.*;
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;

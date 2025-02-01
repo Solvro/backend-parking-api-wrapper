@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.main;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -9,7 +9,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import pl.wrapper.parking.facade.dto.NominatimLocation;
+import pl.wrapper.parking.facade.ParkingHistoricDataService;
+import pl.wrapper.parking.facade.dto.main.NominatimLocation;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
@@ -21,8 +22,6 @@ import java.util.List;
 
 import static org.hamcrest.CoreMatchers.anything;
 import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -41,6 +40,10 @@ public class ParkingControllerIT {
 
     @MockBean
     private NominatimClient nominatimClient;
+
+    @MockBean
+    private ParkingHistoricDataService parkingHistoricDataService;
+
 
     private List<ParkingResponse> parkings;
 

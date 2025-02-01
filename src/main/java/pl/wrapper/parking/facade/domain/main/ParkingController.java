@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.main;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -30,8 +30,8 @@ import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Parking API Main", description = "Endpoints for managing parking-related operations")
-public class ParkingController {
+@Tag(name = "Parking API Main", description = "Endpoints for managing parking-related operations with up-to-date information")
+class ParkingController {
     private final ParkingService parkingService;
 
     @Operation(summary = "Get list of parking lots with free spots from all/opened/closed.")

@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.util.HashMap;
 
 //@Component("parkingEndpointRepository")
-public class ParkingEndpointRepository extends InMemoryRepositoryImpl<Integer, DummyObject> { // <Key, value>
+public class ParkingEndpointRepository extends InMemoryRepositoryImpl<Integer, Integer> { // <Key, value>
 
     public ParkingEndpointRepository(@Value("${serialization.location.ParkingRequests}") String saveToLocationPath) {
         super(

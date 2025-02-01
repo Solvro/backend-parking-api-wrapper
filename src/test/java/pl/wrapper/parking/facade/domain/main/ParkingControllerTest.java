@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.main;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ParkingController.class)
-@ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade"})
+@ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade.main"})
 public class ParkingControllerTest {
     @Autowired
     private MockMvc mockMvc;

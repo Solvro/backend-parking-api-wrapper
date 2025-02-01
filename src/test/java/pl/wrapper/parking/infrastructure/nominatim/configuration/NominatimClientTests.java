@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
-import pl.wrapper.parking.facade.dto.NominatimLocation;
+import pl.wrapper.parking.facade.dto.main.NominatimLocation;
 import pl.wrapper.parking.infrastructure.exception.NominatimClientException;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import reactor.core.publisher.Flux;

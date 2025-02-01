@@ -1,14 +1,13 @@
-package pl.wrapper.parking.facade.domain;
+package pl.wrapper.parking.facade.domain.main;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.wrapper.parking.facade.dto.NominatimLocation;
+import pl.wrapper.parking.facade.dto.main.NominatimLocation;
 import pl.wrapper.parking.infrastructure.error.ParkingError;
 import pl.wrapper.parking.infrastructure.error.Result;
-import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
