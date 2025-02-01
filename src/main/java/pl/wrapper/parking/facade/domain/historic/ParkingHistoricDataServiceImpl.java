@@ -155,8 +155,10 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
         List<ParkingResponse> fetchedData = pwrApiServerCaller.fetchParkingData();
         LocalDate today = LocalDate.now();
         HistoricDataEntry entryForToday = em.find(HistoricDataEntry.class, today);
-        if (entryForToday == null)
+        if (entryForToday == null){
             entryForToday = new HistoricDataEntry(fetchedData.size(), intervalCount, today);
+            em.persist(entryForToday);
+        }
         int currentIntervalIndex = mapTimeToTimeframeIndex(LocalTime.now(), intervalLength);
         for (ParkingResponse parkingData : fetchedData) {
             entryForToday.addValue(parkingData.parkingId(), currentIntervalIndex, parkingData.freeSpots());
