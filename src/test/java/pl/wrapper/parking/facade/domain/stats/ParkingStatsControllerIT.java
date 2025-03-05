@@ -1,5 +1,17 @@
 package pl.wrapper.parking.facade.domain.stats;
 
+import static java.time.DayOfWeek.*;
+import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,19 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
-
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.time.DayOfWeek.*;
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -110,9 +109,7 @@ public class ParkingStatsControllerIT {
 
     @Test
     void getParkingStats_withIncorrectTimeFormat_returnBadRequest() throws Exception {
-        mockMvc.perform(get("/stats")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .queryParam("time", "incorrect"))
+        mockMvc.perform(get("/stats").accept(MediaType.APPLICATION_JSON).queryParam("time", "incorrect"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }

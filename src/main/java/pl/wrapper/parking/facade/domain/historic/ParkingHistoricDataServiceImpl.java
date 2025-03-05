@@ -4,6 +4,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,13 +21,6 @@ import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
 import pl.wrapper.parking.facade.dto.historicData.TimestampEntry;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -38,7 +37,8 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
 
     private final List<String> formattedStartTimes;
 
-    public ParkingHistoricDataServiceImpl(PwrApiServerCaller pwrApiServerCaller, @Value("${historic.data-update.minutes}") Integer intervalLength) {
+    public ParkingHistoricDataServiceImpl(
+            PwrApiServerCaller pwrApiServerCaller, @Value("${historic.data-update.minutes}") Integer intervalLength) {
         this.pwrApiServerCaller = pwrApiServerCaller;
         this.intervalLength = intervalLength;
         intervalCount = calculateTimeframesCount(intervalLength);
@@ -84,35 +84,31 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
     }
 
     TypedQuery<HistoricDataEntry> createPeriodQuery(LocalDate fromDate, LocalDate toDate) {
-        return em.createNamedQuery("HistoricData.periodQuery", HistoricDataEntry.class).setParameter("from", fromDate).setParameter("to", toDate);
+        return em.createNamedQuery("HistoricData.periodQuery", HistoricDataEntry.class)
+                .setParameter("from", fromDate)
+                .setParameter("to", toDate);
     }
 
     TypedQuery<HistoricDataEntry> createFromQuery(LocalDate fromDate) {
-        return em.createNamedQuery("HistoricData.fromQuery", HistoricDataEntry.class).setParameter("from", fromDate);
+        return em.createNamedQuery("HistoricData.fromQuery", HistoricDataEntry.class)
+                .setParameter("from", fromDate);
     }
 
     Query createAtQuery(LocalDate atDate) {
         return em.createNamedQuery("HistoricData.atQuery").setParameter("at", atDate);
     }
 
-
     private HistoricDayParkingData parseTableForDay(int parkingId, short[][] dataTable, LocalDate forDate) {
         if (parkingId >= dataTable.length) return null;
         return new HistoricDayParkingData(
-                (short) parkingId,
-                new HistoricDayData(forDate,
-                        getTimestampedList(dataTable, parkingId))
-        );
+                (short) parkingId, new HistoricDayData(forDate, getTimestampedList(dataTable, parkingId)));
     }
 
     private List<HistoricDayParkingData> parseTableForDay(short[][] dataTable, LocalDate forDate) {
         List<HistoricDayParkingData> resultList = new ArrayList<>(dataTable.length + 1);
         for (int i = 0; i < dataTable.length; i++)
-            resultList.add(
-                    new HistoricDayParkingData((short) i,
-                            new HistoricDayData(forDate,
-                                    getTimestampedList(dataTable, i)))
-            );
+            resultList.add(new HistoricDayParkingData(
+                    (short) i, new HistoricDayData(forDate, getTimestampedList(dataTable, i))));
         return resultList;
     }
 
@@ -128,7 +124,8 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
         return new HistoricPeriodParkingData(
                 (short) parkingId,
                 dataEntries.stream()
-                        .map(data -> new HistoricDayData(data.getDate(), getTimestampedList(data.getParkingInfo(), parkingId)))
+                        .map(data -> new HistoricDayData(
+                                data.getDate(), getTimestampedList(data.getParkingInfo(), parkingId)))
                         .toList());
     }
 
@@ -155,7 +152,7 @@ class ParkingHistoricDataServiceImpl implements ParkingHistoricDataService {
         List<ParkingResponse> fetchedData = pwrApiServerCaller.fetchParkingData();
         LocalDate today = LocalDate.now();
         HistoricDataEntry entryForToday = em.find(HistoricDataEntry.class, today);
-        if (entryForToday == null){
+        if (entryForToday == null) {
             entryForToday = new HistoricDataEntry(fetchedData.size(), intervalCount, today);
             em.persist(entryForToday);
         }

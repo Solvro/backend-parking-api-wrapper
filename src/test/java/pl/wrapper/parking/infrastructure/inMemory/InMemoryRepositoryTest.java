@@ -1,15 +1,14 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class InMemoryRepositoryTest {
 
@@ -19,7 +18,7 @@ class InMemoryRepositoryTest {
     private static final String path = "data/statistics/tests";
 
     static class InMemoryRepositoryTestImpl extends InMemoryRepositoryImpl<Integer, String> {
-        
+
         public InMemoryRepositoryTestImpl(String filePath, Map<Integer, String> map, String defaultValue) {
             super(filePath, map, defaultValue);
         }
@@ -40,7 +39,7 @@ class InMemoryRepositoryTest {
     @BeforeEach
     void setUp() {
         inMemoryRepository = new InMemoryRepositoryTestImpl(path, new HashMap<>(), null);
-        value = new String("value");
+        value = "value";
         id = 10;
     }
 

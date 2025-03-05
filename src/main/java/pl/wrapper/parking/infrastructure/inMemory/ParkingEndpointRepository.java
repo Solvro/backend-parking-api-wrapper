@@ -1,10 +1,9 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
+import java.util.HashMap;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.HashMap;
-
-//@Component("parkingEndpointRepository")
+// @Component("parkingEndpointRepository")
 public class ParkingEndpointRepository extends InMemoryRepositoryImpl<Integer, Integer> { // <Key, value>
 
     public ParkingEndpointRepository(@Value("${serialization.location.ParkingRequests}") String saveToLocationPath) {

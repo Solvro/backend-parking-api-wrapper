@@ -1,5 +1,20 @@
 package pl.wrapper.parking.facade.domain.stats;
 
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -17,26 +32,10 @@ import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
 import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.DayOfWeek;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-
-import static java.time.temporal.TemporalAdjusters.nextOrSame;
-
 @Service
 record ParkingStatsServiceImpl(
-        ParkingDataRepository dataRepository,
-        @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval) implements ParkingStatsService {
+        ParkingDataRepository dataRepository, @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval)
+        implements ParkingStatsService {
 
     @Override
     public List<ParkingStatsResponse> getParkingStats(

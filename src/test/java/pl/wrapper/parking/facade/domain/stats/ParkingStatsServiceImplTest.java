@@ -1,5 +1,13 @@
 package pl.wrapper.parking.facade.domain.stats;
 
+import static java.time.DayOfWeek.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,15 +24,6 @@ import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
-
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static java.time.DayOfWeek.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ParkingStatsServiceImplTest {
@@ -48,7 +47,8 @@ public class ParkingStatsServiceImplTest {
                                 Map.of(
                                         LocalTime.of(10, 0), new AvailabilityData(1, 0.8),
                                         LocalTime.of(12, 0), new AvailabilityData(1, 0.5)),
-                                TUESDAY, Map.of(LocalTime.of(10, 0), new AvailabilityData(1, 0.7))))
+                                TUESDAY,
+                                Map.of(LocalTime.of(10, 0), new AvailabilityData(1, 0.7))))
                         .build(),
                 ParkingData.builder()
                         .parkingId(2)
@@ -88,7 +88,8 @@ public class ParkingStatsServiceImplTest {
         when(dataRepository.fetchAllKeys()).thenReturn(Set.of(1, 2));
         when(dataRepository.get(anyInt())).thenReturn(parkingData.get(0), parkingData.get(1));
 
-        List<ParkingStatsResponse> result = parkingStatsService.getParkingStats(List.of(1, 2, 3), null, LocalTime.of(10, 7));
+        List<ParkingStatsResponse> result =
+                parkingStatsService.getParkingStats(List.of(1, 2, 3), null, LocalTime.of(10, 7));
 
         assertThat(result).hasSize(2);
         ParkingStatsResponse stats1 = result.get(0);
@@ -114,7 +115,8 @@ public class ParkingStatsServiceImplTest {
     void getParkingStats_withEmptyDataRepository_returnEmptyList() {
         when(dataRepository.values()).thenReturn(List.of());
 
-        List<ParkingStatsResponse> result = parkingStatsService.getParkingStats(List.of(1, 2), MONDAY, LocalTime.of(10, 7));
+        List<ParkingStatsResponse> result =
+                parkingStatsService.getParkingStats(List.of(1, 2), MONDAY, LocalTime.of(10, 7));
 
         assertThat(result).isEmpty();
     }

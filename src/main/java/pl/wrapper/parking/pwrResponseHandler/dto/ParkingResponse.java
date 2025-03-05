@@ -2,10 +2,9 @@ package pl.wrapper.parking.pwrResponseHandler.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalTime;
 import lombok.Builder;
 import org.springframework.lang.Nullable;
-
-import java.time.LocalTime;
 
 @Builder
 public record ParkingResponse(

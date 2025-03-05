@@ -1,8 +1,16 @@
 package pl.wrapper.parking.facade.domain.historic;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.when;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,15 +22,6 @@ import pl.wrapper.parking.facade.dto.historicData.HistoricDayParkingData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
 import pl.wrapper.parking.facade.dto.historicData.TimestampEntry;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ParkingHistoricDataServiceImplTest {
@@ -46,23 +45,26 @@ class ParkingHistoricDataServiceImplTest {
 
     @InjectMocks
     @Spy
-    private final ParkingHistoricDataServiceImpl parkingHistoricDataService = new ParkingHistoricDataServiceImpl(pwrApiServerCaller, intervalLength);
+    private final ParkingHistoricDataServiceImpl parkingHistoricDataService =
+            new ParkingHistoricDataServiceImpl(pwrApiServerCaller, intervalLength);
 
     @Test
     void testGetDataForDay_ValidDate_ReturnsParkingData() {
         LocalDate testDate = LocalDate.of(2023, 10, 1);
         short[][] testData = {
-                {10, 20, 30},
-                {5, 15, 25}
+            {10, 20, 30},
+            {5, 15, 25}
         };
         List<short[][]> testList = new ArrayList<>();
         testList.add(testData);
-        HistoricDayParkingData expectedData = new HistoricDayParkingData((short) 1,
-                new HistoricDayData(testDate, List.of(
-                        new TimestampEntry("00:00", (short) 5),
-                        new TimestampEntry("08:00", (short) 15),
-                        new TimestampEntry("16:00", (short) 25)
-                )));
+        HistoricDayParkingData expectedData = new HistoricDayParkingData(
+                (short) 1,
+                new HistoricDayData(
+                        testDate,
+                        List.of(
+                                new TimestampEntry("00:00", (short) 5),
+                                new TimestampEntry("08:00", (short) 15),
+                                new TimestampEntry("16:00", (short) 25))));
 
         doReturn(atQuery).when(parkingHistoricDataService).createAtQuery(testDate);
         when(atQuery.getResultList()).thenReturn(testList);
@@ -86,32 +88,37 @@ class ParkingHistoricDataServiceImplTest {
     void testGetDataForDay_MultipleParkingLots_ReturnsCorrectData() {
         LocalDate testDate = LocalDate.of(2023, 10, 2);
         short[][] testData = {
-                {15, 25, 35},
-                {10, 20, 30},
-                {5, 10, 15}
+            {15, 25, 35},
+            {10, 20, 30},
+            {5, 10, 15}
         };
         List<short[][]> testList = new ArrayList<>();
         testList.add(testData);
         List<HistoricDayParkingData> expectedData = List.of(
-                new HistoricDayParkingData((short) 0,
-                        new HistoricDayData(testDate, List.of(
-                                new TimestampEntry("00:00", (short) 15),
-                                new TimestampEntry("08:00", (short) 25),
-                                new TimestampEntry("16:00", (short) 35)
-                        ))),
-                new HistoricDayParkingData((short) 1,
-                        new HistoricDayData(testDate, List.of(
-                                new TimestampEntry("00:00", (short) 10),
-                                new TimestampEntry("08:00", (short) 20),
-                                new TimestampEntry("16:00", (short) 30)
-                        ))),
-                new HistoricDayParkingData((short) 2,
-                        new HistoricDayData(testDate, List.of(
-                                new TimestampEntry("00:00", (short) 5),
-                                new TimestampEntry("08:00", (short) 10),
-                                new TimestampEntry("16:00", (short) 15)
-                        )))
-        );
+                new HistoricDayParkingData(
+                        (short) 0,
+                        new HistoricDayData(
+                                testDate,
+                                List.of(
+                                        new TimestampEntry("00:00", (short) 15),
+                                        new TimestampEntry("08:00", (short) 25),
+                                        new TimestampEntry("16:00", (short) 35)))),
+                new HistoricDayParkingData(
+                        (short) 1,
+                        new HistoricDayData(
+                                testDate,
+                                List.of(
+                                        new TimestampEntry("00:00", (short) 10),
+                                        new TimestampEntry("08:00", (short) 20),
+                                        new TimestampEntry("16:00", (short) 30)))),
+                new HistoricDayParkingData(
+                        (short) 2,
+                        new HistoricDayData(
+                                testDate,
+                                List.of(
+                                        new TimestampEntry("00:00", (short) 5),
+                                        new TimestampEntry("08:00", (short) 10),
+                                        new TimestampEntry("16:00", (short) 15)))));
 
         doReturn(atQuery).when(parkingHistoricDataService).createAtQuery(testDate);
         when(atQuery.getResultList()).thenReturn(testList);
@@ -130,14 +137,13 @@ class ParkingHistoricDataServiceImplTest {
 
         List<HistoricDataEntry> testData = List.of(
                 new HistoricDataEntry(fromDate, new short[][] {
-                        {10, 20, 30},
-                        {5, 15, 25}
+                    {10, 20, 30},
+                    {5, 15, 25}
                 }),
                 new HistoricDataEntry(toDate, new short[][] {
-                        {15, 25, 35},
-                        {10, 20, 30}
-                })
-        );
+                    {15, 25, 35},
+                    {10, 20, 30}
+                }));
 
         doReturn(periodQuery).when(parkingHistoricDataService).createPeriodQuery(fromDate, toDate);
         when(periodQuery.getResultList()).thenReturn(testData);
@@ -173,12 +179,10 @@ class ParkingHistoricDataServiceImplTest {
         LocalDate fromDate = LocalDate.of(2023, 10, 1);
         int parkingId = 1;
 
-        List<HistoricDataEntry> testData = List.of(
-                new HistoricDataEntry(fromDate, new short[][] {
-                        {15, 25, 35},
-                        {5, 10, 15}
-                })
-        );
+        List<HistoricDataEntry> testData = List.of(new HistoricDataEntry(fromDate, new short[][] {
+            {15, 25, 35},
+            {5, 10, 15}
+        }));
 
         doReturn(fromQuery).when(parkingHistoricDataService).createFromQuery(fromDate);
         when(fromQuery.getResultList()).thenReturn(testData);
@@ -193,7 +197,8 @@ class ParkingHistoricDataServiceImplTest {
 
     @Test
     void testCalculateTimeframesCount() throws Exception {
-        java.lang.reflect.Method method = ParkingHistoricDataServiceImpl.class.getDeclaredMethod("calculateTimeframesCount", int.class);
+        java.lang.reflect.Method method =
+                ParkingHistoricDataServiceImpl.class.getDeclaredMethod("calculateTimeframesCount", int.class);
         method.setAccessible(true);
 
         int timeframeLength = 60;
@@ -215,7 +220,8 @@ class ParkingHistoricDataServiceImplTest {
     @Test
     void testMapTimeToTimeframeIndex() throws Exception {
 
-        java.lang.reflect.Method mapTimeToTimeframeIndexMethod = ParkingHistoricDataServiceImpl.class.getDeclaredMethod("mapTimeToTimeframeIndex", LocalTime.class, int.class);
+        java.lang.reflect.Method mapTimeToTimeframeIndexMethod = ParkingHistoricDataServiceImpl.class.getDeclaredMethod(
+                "mapTimeToTimeframeIndex", LocalTime.class, int.class);
         mapTimeToTimeframeIndexMethod.setAccessible(true);
 
         LocalTime time = LocalTime.MIDNIGHT;
@@ -253,6 +259,4 @@ class ParkingHistoricDataServiceImplTest {
         actualIndex = (int) mapTimeToTimeframeIndexMethod.invoke(null, time, intervalLength);
         assertEquals(expectedIndex, actualIndex);
     }
-
-
 }

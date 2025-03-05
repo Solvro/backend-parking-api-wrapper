@@ -1,5 +1,11 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.MediaType;
@@ -10,13 +16,6 @@ import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 @Profile("prod")
 @Component
@@ -106,8 +105,6 @@ public final class PwrApiCaller {
     }
 
     public Mono<List<Object>> fetchAllParkingCharts() {
-        return Flux.fromArray(ID_MAPPER)
-                .flatMap(this::fetchParkingChart)
-                .collectList();
+        return Flux.fromArray(ID_MAPPER).flatMap(this::fetchParkingChart).collectList();
     }
 }

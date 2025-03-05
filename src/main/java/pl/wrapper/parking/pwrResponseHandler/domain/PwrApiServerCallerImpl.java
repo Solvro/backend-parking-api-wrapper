@@ -1,5 +1,7 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
@@ -8,9 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
@@ -29,12 +28,13 @@ public class PwrApiServerCallerImpl implements PwrApiServerCaller {
         return data;
     }
 
-    @CacheEvict(value = {"parkingListCache", "chartCache"}, allEntries = true)
+    @CacheEvict(
+            value = {"parkingListCache", "chartCache"},
+            allEntries = true)
     @Scheduled(fixedRate = CACHE_TTL_MIN, timeUnit = TimeUnit.MINUTES)
     public void flushCache() {
         log.info("Cache flushed. New data can be fetched.");
     }
-
 
     @Override
     @Cacheable("chartCache")

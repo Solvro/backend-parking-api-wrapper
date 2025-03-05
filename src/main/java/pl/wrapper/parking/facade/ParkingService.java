@@ -1,10 +1,9 @@
 package pl.wrapper.parking.facade;
 
+import java.util.List;
 import org.springframework.lang.Nullable;
 import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
-import java.util.List;
 
 public interface ParkingService {
 
@@ -28,5 +27,6 @@ public interface ParkingService {
             @Nullable Boolean hasFreeSpots);
 
     Object getChartForToday(Integer forId);
+
     List<Object> getAllChartsForToday();
 }

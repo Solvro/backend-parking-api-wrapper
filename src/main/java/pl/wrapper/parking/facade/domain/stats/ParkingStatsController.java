@@ -8,6 +8,9 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -26,10 +29,6 @@ import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.validation.validIds.ValidIds;
 
-import java.time.DayOfWeek;
-import java.time.LocalTime;
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -43,35 +42,35 @@ class ParkingStatsController {
             summary = "Get parking statistics",
             description = "Fetch statistics for specified parking IDs, day of week, and time",
             parameters = {
-                    @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
-                    @Parameter(
-                            name = "day_of_week",
-                            description = "Day of week to filter stats for",
-                            example = "WEDNESDAY"),
-                    @Parameter(
-                            name = "time",
-                            description = "Time to filter stats for in ISO time format",
-                            required = true,
-                            example = "12:34:00")
+                @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
+                @Parameter(
+                        name = "day_of_week",
+                        description = "Day of week to filter stats for",
+                        example = "WEDNESDAY"),
+                @Parameter(
+                        name = "time",
+                        description = "Time to filter stats for in ISO time format",
+                        required = true,
+                        example = "12:34:00")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Parking stats retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(implementation = ParkingStatsResponse.class)))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Incorrect or missing input query parameters",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Parking stats retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(implementation = ParkingStatsResponse.class)))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Incorrect or missing input query parameters",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ParkingStatsResponse>> getParkingStats(
@@ -90,33 +89,33 @@ class ParkingStatsController {
             summary = "Get daily parking statistics",
             description = "Fetch daily statistics for specified parking IDs and day of week",
             parameters = {
-                    @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
-                    @Parameter(
-                            name = "day_of_week",
-                            description = "Day of week to filter stats for",
-                            required = true,
-                            example = "WEDNESDAY"),
+                @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
+                @Parameter(
+                        name = "day_of_week",
+                        description = "Day of week to filter stats for",
+                        required = true,
+                        example = "WEDNESDAY"),
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Daily parking stats retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(
-                                                    implementation =
-                                                            DailyParkingStatsResponse.class)))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Incorrect or missing input query parameters",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Daily parking stats retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                DailyParkingStatsResponse.class)))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Incorrect or missing input query parameters",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(path = "/daily", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<DailyParkingStatsResponse>> getDailyParkingStats(
@@ -130,28 +129,28 @@ class ParkingStatsController {
             summary = "Get weekly parking statistics",
             description = "Fetch weekly statistics for specified parking IDs",
             parameters = {
-                    @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
+                @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Weekly parking stats retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(
-                                                    implementation =
-                                                            WeeklyParkingStatsResponse.class)))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Incorrect input query parameters",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Weekly parking stats retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                WeeklyParkingStatsResponse.class)))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Incorrect input query parameters",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(path = "/weekly", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<WeeklyParkingStatsResponse>> getWeeklyParkingStats(
@@ -164,38 +163,38 @@ class ParkingStatsController {
             summary = "Get collective daily parking statistics",
             description = "Fetch daily statistics for specified parking IDs and day of week for each time interval",
             parameters = {
-                    @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
-                    @Parameter(
-                            name = "day_of_week",
-                            description = "Day of week to filter stats for",
-                            required = true,
-                            example = "WEDNESDAY"),
+                @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5"),
+                @Parameter(
+                        name = "day_of_week",
+                        description = "Day of week to filter stats for",
+                        required = true,
+                        example = "WEDNESDAY"),
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Collective daily parking stats retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(
-                                                    implementation =
-                                                            CollectiveDailyParkingStats.class)),
-                                    examples =
-                                    @ExampleObject(
-                                            "[{\"parkingInfo\": {\"parkingId\": 3, \"totalSpots\": 54},"
-                                                    + "\"statsMap\": {\"08:00:00\": {\"averageAvailability\": 0.723, \"averageFreeSpots\": 37},"
-                                                    + "\"08:10:00\": {\"averageAvailability\": 0.69, \"averageFreeSpots\": 33}}}]"))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Incorrect or missing input query parameters",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Collective daily parking stats retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                CollectiveDailyParkingStats.class)),
+                                        examples =
+                                                @ExampleObject(
+                                                        "[{\"parkingInfo\": {\"parkingId\": 3, \"totalSpots\": 54},"
+                                                                + "\"statsMap\": {\"08:00:00\": {\"averageAvailability\": 0.723, \"averageFreeSpots\": 37},"
+                                                                + "\"08:10:00\": {\"averageAvailability\": 0.69, \"averageFreeSpots\": 33}}}]"))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Incorrect or missing input query parameters",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(path = "/daily/collective", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CollectiveDailyParkingStats>> getCollectiveDailyParkingStats(
@@ -212,28 +211,28 @@ class ParkingStatsController {
             summary = "Get collective weekly parking statistics",
             description = "Fetch weekly statistics for specified parking IDs for each time interval of each day",
             parameters = {
-                    @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
+                @Parameter(name = "ids", description = "List of parking IDs to filter stats for", example = "1,3,5")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Collective weekly parking stats retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(
-                                                    implementation =
-                                                            CollectiveWeeklyParkingStats.class)))),
-                    @ApiResponse(
-                            responseCode = "400",
-                            description = "Incorrect input query parameters",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Collective weekly parking stats retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                CollectiveWeeklyParkingStats.class)))),
+                @ApiResponse(
+                        responseCode = "400",
+                        description = "Incorrect input query parameters",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(path = "/weekly/collective", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CollectiveWeeklyParkingStats>> getCollectiveWeeklyParkingStats(
