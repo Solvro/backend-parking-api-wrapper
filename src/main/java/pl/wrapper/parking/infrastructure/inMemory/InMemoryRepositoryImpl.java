@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,10 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
         this.defaultValue = defaultValue;
 
         this.dataMap = map;
+    }
+
+    public Collection<V> values() {
+        return dataMap.values();
     }
 
     @Override

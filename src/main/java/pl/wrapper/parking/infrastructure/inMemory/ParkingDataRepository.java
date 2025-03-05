@@ -3,7 +3,6 @@ package pl.wrapper.parking.infrastructure.inMemory;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +31,6 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
             PwrApiServerCaller pwrApiServerCaller) {
         super(saveToLocationPath, new HashMap<>(), null);
         this.pwrApiServerCaller = pwrApiServerCaller;
-    }
-
-    public Collection<ParkingData> values() {
-        return dataMap.values();
     }
 
     @Scheduled(fixedRateString = "${pwr-api.data-fetch.minutes}", timeUnit = TimeUnit.MINUTES)
