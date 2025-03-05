@@ -22,8 +22,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
-import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
-import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc

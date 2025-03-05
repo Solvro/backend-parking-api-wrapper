@@ -1,4 +1,4 @@
-package pl.wrapper.parking.infrastructure.inMemory.dto;
+package pl.wrapper.parking.infrastructure.inMemory.dto.parking;
 
 import java.io.Serializable;
 

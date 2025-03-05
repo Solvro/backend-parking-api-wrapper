@@ -28,8 +28,8 @@ import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
 import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
 import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
-import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
-import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;
 import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
 
 @Service
