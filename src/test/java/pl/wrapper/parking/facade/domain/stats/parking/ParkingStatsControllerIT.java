@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain.stats;
+package pl.wrapper.parking.facade.domain.stats.parking;
 
 import static java.time.DayOfWeek.*;
 import static org.hamcrest.CoreMatchers.anything;

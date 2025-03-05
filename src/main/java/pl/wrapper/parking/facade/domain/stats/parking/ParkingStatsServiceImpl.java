@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain.stats;
+package pl.wrapper.parking.facade.domain.stats.parking;
 
 import static java.time.temporal.TemporalAdjusters.nextOrSame;
 
@@ -19,14 +19,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingStatsService;
-import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.OccupancyInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.CollectiveDailyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.CollectiveWeeklyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;

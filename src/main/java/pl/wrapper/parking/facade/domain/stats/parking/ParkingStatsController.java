@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain.stats;
+package pl.wrapper.parking.facade.domain.stats.parking;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pl.wrapper.parking.facade.ParkingStatsService;
-import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.CollectiveDailyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.CollectiveWeeklyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.infrastructure.validation.validIds.ValidIds;
 

@@ -1,4 +1,4 @@
-package pl.wrapper.parking.facade.domain.stats;
+package pl.wrapper.parking.facade.domain.stats.parking;
 
 import static java.time.DayOfWeek.*;
 import static org.assertj.core.api.Assertions.*;
@@ -13,14 +13,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.OccupancyInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.CollectiveDailyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.CollectiveWeeklyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.WeeklyParkingStatsResponse;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
 import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;
