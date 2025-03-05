@@ -52,6 +52,6 @@ class HistoricDataEntry {
     }
 
     public void addValue(int parkingId, int forTimeframe, int freeSpots) {
-        this.parkingInfo[parkingId][forTimeframe] = (short) freeSpots;
+        this.parkingInfo[parkingId - 1][forTimeframe] = (short) freeSpots;
     }
 }
