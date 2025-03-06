@@ -1,9 +1,8 @@
 package pl.wrapper.parking.facade;
 
-import pl.wrapper.parking.facade.dto.stats.request.EndpointStats;
-
 import java.util.List;
 import java.util.Map;
+import pl.wrapper.parking.facade.dto.stats.request.EndpointStats;
 
 public interface ParkingRequestStatsService {
     Map<String, EndpointStats> getBasicRequestStats();

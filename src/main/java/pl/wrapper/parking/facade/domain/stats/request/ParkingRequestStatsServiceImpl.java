@@ -1,16 +1,15 @@
 package pl.wrapper.parking.facade.domain.stats.request;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import pl.wrapper.parking.facade.ParkingRequestStatsService;
 import pl.wrapper.parking.facade.dto.stats.request.EndpointStats;
 import pl.wrapper.parking.infrastructure.inMemory.ParkingRequestRepository;
 import pl.wrapper.parking.infrastructure.inMemory.dto.request.EndpointData;
 import pl.wrapper.parking.infrastructure.inMemory.dto.request.TimeframeStatistic;
-
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 class ParkingRequestStatsServiceImpl implements ParkingRequestStatsService {
@@ -21,7 +20,9 @@ class ParkingRequestStatsServiceImpl implements ParkingRequestStatsService {
 
     public ParkingRequestStatsServiceImpl(ParkingRequestRepository requestRepository) {
         this.requestRepository = requestRepository;
-        this.formattedTimeframes = getFormattedTimeframes(requestRepository.getTotalEndpoint().getTimeframeLength(), requestRepository.getTotalEndpoint().getTimeframeStatistics().length);
+        this.formattedTimeframes = getFormattedTimeframes(
+                requestRepository.getTotalEndpoint().getTimeframeLength(),
+                requestRepository.getTotalEndpoint().getTimeframeStatistics().length);
     }
 
     @Override
