@@ -15,6 +15,8 @@ public class ParkingRequestInterceptorConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new ParkingRequestInterceptor(parkingRequestRepository))
                 .addPathPatterns("/**")
-                .excludePathPatterns("/stats/**");
+                .excludePathPatterns("/stats/**")
+                .excludePathPatterns("/swagger-ui/**")
+                .excludePathPatterns("/v3/api-docs/**");
     }
 }
