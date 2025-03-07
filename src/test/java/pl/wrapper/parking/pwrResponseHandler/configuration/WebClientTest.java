@@ -1,5 +1,10 @@
 package pl.wrapper.parking.pwrResponseHandler.configuration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+import static pl.wrapper.parking.pwrResponseHandler.configuration.WebClientConfig.buildRetryFilter;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
@@ -14,11 +19,6 @@ import pl.wrapper.parking.pwrResponseHandler.domain.PwrApiServerCallerImpl;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-import static pl.wrapper.parking.pwrResponseHandler.configuration.WebClientConfig.buildRetryFilter;
-
 class WebClientTest {
 
     @Test
@@ -27,18 +27,15 @@ class WebClientTest {
                 .body("Access Denied")
                 .build();
         ExchangeFunction mockExchangeFunction = mock(ExchangeFunction.class);
-        when(mockExchangeFunction.exchange(any()))
-                .thenReturn(Mono.just(forbiddenResponse));
+        when(mockExchangeFunction.exchange(any())).thenReturn(Mono.just(forbiddenResponse));
         WebClient webClientWithFilters = WebClient.builder()
                 .filter(buildRetryFilter())
                 .filter(ExchangeFilterFunction.ofResponseProcessor(WebClientConfig::responseFilter))
                 .exchangeFunction(mockExchangeFunction)
                 .build();
 
-        Mono<String> response = webClientWithFilters.get()
-                .uri("/mock-uri")
-                .retrieve()
-                .bodyToMono(String.class);
+        Mono<String> response =
+                webClientWithFilters.get().uri("/mock-uri").retrieve().bodyToMono(String.class);
 
         StepVerifier.create(response)
                 .expectErrorMatches(throwable -> throwable instanceof PwrApiNotRespondingException

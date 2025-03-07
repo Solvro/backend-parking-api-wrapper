@@ -1,7 +1,6 @@
-package pl.wrapper.parking.facade.dto.stats.basis;
+package pl.wrapper.parking.facade.dto.stats.parking.basis;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 

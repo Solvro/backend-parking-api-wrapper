@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -23,39 +25,36 @@ import pl.wrapper.parking.facade.ParkingHistoricDataService;
 import pl.wrapper.parking.facade.dto.historicData.HistoricDayParkingData;
 import pl.wrapper.parking.facade.dto.historicData.HistoricPeriodParkingData;
 
-import java.time.LocalDate;
-import java.util.List;
-
 @RestController
 @AllArgsConstructor
 @Slf4j
-@Tag(name = "Parking API Historic", description = "Endpoints for accessing historic data. Free spots with value=-1 mean that data couldn't have been fetched at that time. Missing/null days in periods mean the same.")
+@Tag(
+        name = "Parking API Historic",
+        description =
+                "Endpoints for accessing historic data. Free spots with value=-1 mean that data couldn't have been fetched at that time. Missing/null days in periods mean the same.")
 @RequestMapping("/historic")
 class ParkingHistoricController {
 
     private ParkingHistoricDataService parkingHistoricDataService;
 
-
     @Operation(
             summary = "Get historic data for the given day and parking of given id",
             parameters = {
-                    @Parameter(
-                            name = "forDay",
-                            description = "Date in ISO date format",
-                            required = true,
-                            example = "2025-07-29")
+                @Parameter(
+                        name = "forDay",
+                        description = "Date in ISO date format",
+                        required = true,
+                        example = "2025-07-29")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Historic data retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = HistoricDayParkingData.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No data for the given parking lot for the given date")
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Historic data retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = HistoricDayParkingData.class))),
+                @ApiResponse(responseCode = "404", description = "No data for the given parking lot for the given date")
             })
     @GetMapping(path = "/day/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HistoricDayParkingData> getHistoricDataForDayAndId(
@@ -69,27 +68,26 @@ class ParkingHistoricController {
     @Operation(
             summary = "Get historic data for the given day for all parking lots",
             parameters = {
-                    @Parameter(
-                            name = "forDay",
-                            description = "Date in ISO date format",
-                            required = true,
-                            example = "2025-07-29")
+                @Parameter(
+                        name = "forDay",
+                        description = "Date in ISO date format",
+                        required = true,
+                        example = "2025-07-29")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Historic data retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(implementation = HistoricDayParkingData.class)))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No data for the given date"
-                    )
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Historic data retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                HistoricDayParkingData.class)))),
+                @ApiResponse(responseCode = "404", description = "No data for the given date")
             })
     @GetMapping(path = "/day", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<HistoricDayParkingData>> getHistoricDataForDay(
@@ -100,76 +98,73 @@ class ParkingHistoricController {
     }
 
     @Operation(
-            summary = "Get all available historic data for the given period for the given id, both ends inclusive. If no end data given, get until today.",
+            summary =
+                    "Get all available historic data for the given period for the given id, both ends inclusive. If no end data given, get until today.",
             parameters = {
-                    @Parameter(
-                            name = "fromDate",
-                            description = "Date in ISO date format",
-                            required = true,
-                            example = "2025-07-29"),
-                    @Parameter(
-                            name = "toDate",
-                            description = "Date in ISO date format",
-                            example = "2025-08-29")
+                @Parameter(
+                        name = "fromDate",
+                        description = "Date in ISO date format",
+                        required = true,
+                        example = "2025-07-29"),
+                @Parameter(name = "toDate", description = "Date in ISO date format", example = "2025-08-29")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Historic data retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = HistoricPeriodParkingData.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No data for the given parking lot for the given period")
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Historic data retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = HistoricPeriodParkingData.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "No data for the given parking lot for the given period")
             })
     @GetMapping(path = "/period/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HistoricPeriodParkingData> getHistoricDataForPeriodAndId(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("fromDate") LocalDate fromDate,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false)
+                    LocalDate toDate,
             @PathVariable(name = "id") @Min(1) @Max(5) Integer parkingId) {
-        HistoricPeriodParkingData dataForPeriod = parkingHistoricDataService.getDataForPeriod(fromDate, toDate, parkingId);
+        HistoricPeriodParkingData dataForPeriod =
+                parkingHistoricDataService.getDataForPeriod(fromDate, toDate, parkingId);
         if (dataForPeriod == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForPeriod);
     }
 
     @Operation(
-            summary = "Get all available historic data for the given period for all parking lots, both ends inclusive. If no end data given, get until today.",
+            summary =
+                    "Get all available historic data for the given period for all parking lots, both ends inclusive. If no end data given, get until today.",
             parameters = {
-                    @Parameter(
-                            name = "fromDate",
-                            description = "Date in ISO date format",
-                            required = true,
-                            example = "2025-07-29"),
-                    @Parameter(
-                            name = "toDate",
-                            description = "Date in ISO date format",
-                            example = "2025-08-29")
+                @Parameter(
+                        name = "fromDate",
+                        description = "Date in ISO date format",
+                        required = true,
+                        example = "2025-07-29"),
+                @Parameter(name = "toDate", description = "Date in ISO date format", example = "2025-08-29")
             },
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Historic data retrieved successfully",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    array =
-                                    @ArraySchema(
-                                            schema =
-                                            @Schema(implementation = HistoricPeriodParkingData.class)))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No data for the given period"
-                    )
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Historic data retrieved successfully",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        array =
+                                                @ArraySchema(
+                                                        schema =
+                                                                @Schema(
+                                                                        implementation =
+                                                                                HistoricPeriodParkingData.class)))),
+                @ApiResponse(responseCode = "404", description = "No data for the given period")
             })
     @GetMapping(path = "/period", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<HistoricPeriodParkingData>> getHistoricDataForPeriod(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("fromDate") LocalDate fromDate,
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false) LocalDate toDate) {
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "toDate", required = false)
+                    LocalDate toDate) {
         List<HistoricPeriodParkingData> dataForPeriod = parkingHistoricDataService.getDataForPeriod(fromDate, toDate);
         if (dataForPeriod == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dataForPeriod);
     }
-
 }

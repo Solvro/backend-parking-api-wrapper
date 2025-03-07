@@ -2,6 +2,7 @@ package pl.wrapper.parking.infrastructure.exception;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.servlet.http.HttpServletRequest;
+import java.net.ConnectException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.serializer.support.SerializationFailedException;
@@ -15,8 +16,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
-
-import java.net.ConnectException;
 
 @ControllerAdvice
 @RequiredArgsConstructor
@@ -33,7 +32,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
-    public ResponseEntity<ErrorWrapper> handleValidationException(HandlerMethodValidationException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handleValidationException(
+            HandlerMethodValidationException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = "Validation error for method parameters/variables";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
@@ -42,7 +42,8 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
-    public ResponseEntity<ErrorWrapper> handleNoResourceException(NoResourceFoundException e, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handleNoResourceException(
+            NoResourceFoundException e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
         String message = "Invalid call URL";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);
@@ -90,8 +91,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler({PwrApiNotRespondingException.class, WebClientRequestException.class, ConnectException.class})
-    public ResponseEntity<ErrorWrapper> handlePwrApiNotRespondingException(
-            Exception e, HttpServletRequest request) {
+    public ResponseEntity<ErrorWrapper> handlePwrApiNotRespondingException(Exception e, HttpServletRequest request) {
         HttpStatus status = HttpStatus.SERVICE_UNAVAILABLE;
         String message = "PWR Api not responding";
         ErrorWrapper errorWrapper = new ErrorWrapper(message, status, request.getRequestURI(), status);

@@ -1,9 +1,9 @@
-package pl.wrapper.parking.facade.dto.stats.weekly;
+package pl.wrapper.parking.facade.dto.stats.parking.weekly;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.OccupancyInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingStats;
 
 public record WeeklyParkingStatsResponse(
         @Schema(implementation = ParkingInfo.class) ParkingInfo parkingInfo,

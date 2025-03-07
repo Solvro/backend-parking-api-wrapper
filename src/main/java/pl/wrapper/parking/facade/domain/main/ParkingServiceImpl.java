@@ -1,5 +1,11 @@
 package pl.wrapper.parking.facade.domain.main;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -11,18 +17,9 @@ import pl.wrapper.parking.infrastructure.nominatim.client.NominatimClient;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
 @Service
 @Slf4j
-record ParkingServiceImpl(
-        PwrApiServerCaller pwrApiServerCaller,
-        NominatimClient nominatimClient)
+record ParkingServiceImpl(PwrApiServerCaller pwrApiServerCaller, NominatimClient nominatimClient)
         implements ParkingService {
 
     @Override
@@ -91,7 +88,7 @@ record ParkingServiceImpl(
 
     @Override
     public Object getChartForToday(Integer forId) {
-        return pwrApiServerCaller.getAllCharsForToday().get(forId-1);
+        return pwrApiServerCaller.getAllCharsForToday().get(forId - 1);
     }
 
     @Override

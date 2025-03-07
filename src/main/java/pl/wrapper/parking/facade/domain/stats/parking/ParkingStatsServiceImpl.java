@@ -1,21 +1,6 @@
-package pl.wrapper.parking.facade.domain.stats;
+package pl.wrapper.parking.facade.domain.stats.parking;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Service;
-import pl.wrapper.parking.facade.ParkingStatsService;
-import pl.wrapper.parking.facade.dto.stats.ParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.basis.OccupancyInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingInfo;
-import pl.wrapper.parking.facade.dto.stats.basis.ParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.CollectiveDailyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.daily.DailyParkingStatsResponse;
-import pl.wrapper.parking.facade.dto.stats.weekly.CollectiveWeeklyParkingStats;
-import pl.wrapper.parking.facade.dto.stats.weekly.WeeklyParkingStatsResponse;
-import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
-import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
-import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
-import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
+import static java.time.temporal.TemporalAdjusters.nextOrSame;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -30,13 +15,27 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-
-import static java.time.temporal.TemporalAdjusters.nextOrSame;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.Nullable;
+import org.springframework.stereotype.Service;
+import pl.wrapper.parking.facade.ParkingStatsService;
+import pl.wrapper.parking.facade.dto.stats.parking.ParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.OccupancyInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingInfo;
+import pl.wrapper.parking.facade.dto.stats.parking.basis.ParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.CollectiveDailyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.daily.DailyParkingStatsResponse;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.CollectiveWeeklyParkingStats;
+import pl.wrapper.parking.facade.dto.stats.parking.weekly.WeeklyParkingStatsResponse;
+import pl.wrapper.parking.infrastructure.inMemory.ParkingDataRepository;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;
+import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
 
 @Service
 record ParkingStatsServiceImpl(
-        ParkingDataRepository dataRepository,
-        @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval) implements ParkingStatsService {
+        ParkingDataRepository dataRepository, @Value("${pwr-api.data-fetch.minutes}") Integer minuteInterval)
+        implements ParkingStatsService {
 
     @Override
     public List<ParkingStatsResponse> getParkingStats(

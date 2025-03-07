@@ -1,5 +1,7 @@
 package pl.wrapper.parking.facade.domain.main;
 
+import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,6 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,14 +26,12 @@ import pl.wrapper.parking.facade.ParkingService;
 import pl.wrapper.parking.infrastructure.error.ErrorWrapper;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
-import java.util.List;
-
-import static pl.wrapper.parking.infrastructure.error.HandleResult.handleResult;
-
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Parking API Main", description = "Endpoints for managing parking-related operations with up-to-date information")
+@Tag(
+        name = "Parking API Main",
+        description = "Endpoints for managing parking-related operations with up-to-date information")
 class ParkingController {
     private final ParkingService parkingService;
 
@@ -39,9 +40,9 @@ class ParkingController {
             responseCode = "200",
             description = "list of parking lots",
             content =
-            @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = ParkingResponse.class))))
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ParkingResponse.class))))
     @GetMapping(path = "/free", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ParkingResponse>> getAllParkingWithFreeSpots(
             @Parameter(description = "search in opened parking lots") @RequestParam(required = false) Boolean opened) {
@@ -54,7 +55,7 @@ class ParkingController {
             responseCode = "200",
             description = "parking found",
             content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
     @ApiResponse(
             responseCode = "404",
             description = "parking not found",
@@ -70,26 +71,26 @@ class ParkingController {
     @Operation(
             summary = "Find the closest parking by given address.",
             parameters =
-            @Parameter(
-                    name = "address",
-                    description = "The address to find the closest parking for",
-                    required = true,
-                    example = "Flower 20, 50-337 Wroclaw"),
+                    @Parameter(
+                            name = "address",
+                            description = "The address to find the closest parking for",
+                            required = true,
+                            example = "Flower 20, 50-337 Wroclaw"),
             responses = {
-                    @ApiResponse(
-                            responseCode = "200",
-                            description = "Closest parking found",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ParkingResponse.class))),
-                    @ApiResponse(
-                            responseCode = "404",
-                            description = "No parking found for the given address",
-                            content =
-                            @Content(
-                                    mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ErrorWrapper.class)))
+                @ApiResponse(
+                        responseCode = "200",
+                        description = "Closest parking found",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ParkingResponse.class))),
+                @ApiResponse(
+                        responseCode = "404",
+                        description = "No parking found for the given address",
+                        content =
+                                @Content(
+                                        mediaType = MediaType.APPLICATION_JSON_VALUE,
+                                        schema = @Schema(implementation = ErrorWrapper.class)))
             })
     @GetMapping(path = "/address", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<String> getClosestParking(
@@ -103,7 +104,7 @@ class ParkingController {
             responseCode = "200",
             description = "parking found",
             content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
     @ApiResponse(
             responseCode = "404",
             description = "parking not found",
@@ -122,7 +123,7 @@ class ParkingController {
             responseCode = "200",
             description = "parking found",
             content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
     @ApiResponse(
             responseCode = "404",
             description = "parking not found",
@@ -141,7 +142,7 @@ class ParkingController {
             responseCode = "200",
             description = "parking found",
             content =
-            @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = ParkingResponse.class)))
     @ApiResponse(
             responseCode = "404",
             description = "parking not found",
@@ -160,9 +161,9 @@ class ParkingController {
             responseCode = "200",
             description = "list with parking lots",
             content =
-            @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(schema = @Schema(implementation = ParkingResponse.class))))
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ParkingResponse.class))))
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ParkingResponse>> getParkingByParams(
             @Parameter(description = "parking symbol") @RequestParam(required = false) String symbol,
@@ -183,8 +184,7 @@ class ParkingController {
     @ApiResponse(
             responseCode = "200",
             description = "Chart fetched",
-            content =
-            @Content(mediaType = "application/json"))
+            content = @Content(mediaType = "application/json"))
     @GetMapping(path = "/chart/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> getChartForToday(@PathVariable("id") @Min(1) @Max(5) Integer id) {
         return ResponseEntity.ok(parkingService.getChartForToday(id));
@@ -194,11 +194,9 @@ class ParkingController {
     @ApiResponse(
             responseCode = "200",
             description = "Chart fetched",
-            content =
-            @Content(mediaType = "application/json"))
+            content = @Content(mediaType = "application/json"))
     @GetMapping(path = "/chart", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Object>> getAllChartsForToday() {
         return ResponseEntity.ok(parkingService.getAllChartsForToday());
     }
-
 }

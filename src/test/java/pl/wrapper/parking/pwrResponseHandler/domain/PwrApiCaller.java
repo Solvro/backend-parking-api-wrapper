@@ -1,14 +1,13 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
+import java.time.LocalTime;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Mono;
-
-import java.time.LocalTime;
-import java.util.List;
 
 @Profile("test")
 @Component
@@ -66,7 +65,6 @@ public final class PwrApiCaller {
                         .openingHours(LocalTime.of(8, 0))
                         .closingHours(LocalTime.of(18, 0))
                         .address(new Address("Downtown Ln", 0.3f, 2.1f))
-                        .build())
-        );
+                        .build()));
     }
 }

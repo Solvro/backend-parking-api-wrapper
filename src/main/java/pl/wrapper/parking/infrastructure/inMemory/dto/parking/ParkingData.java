@@ -1,11 +1,10 @@
-package pl.wrapper.parking.infrastructure.inMemory.dto;
-
-import lombok.Builder;
+package pl.wrapper.parking.infrastructure.inMemory.dto.parking;
 
 import java.io.Serializable;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Map;
+import lombok.Builder;
 
 @Builder
 public record ParkingData(

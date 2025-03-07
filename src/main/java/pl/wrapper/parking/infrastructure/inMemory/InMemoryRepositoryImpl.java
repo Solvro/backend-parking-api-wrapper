@@ -2,9 +2,6 @@ package pl.wrapper.parking.infrastructure.inMemory;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import org.springframework.core.serializer.support.SerializationFailedException;
-import org.springframework.scheduling.annotation.Scheduled;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,9 +9,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import org.springframework.core.serializer.support.SerializationFailedException;
+import org.springframework.scheduling.annotation.Scheduled;
 
 public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends Serializable>
         implements InMemoryRepository<K, V> {
@@ -28,6 +28,10 @@ public abstract class InMemoryRepositoryImpl<K extends Serializable, V extends S
         this.defaultValue = defaultValue;
 
         this.dataMap = map;
+    }
+
+    public Collection<V> values() {
+        return dataMap.values();
     }
 
     @Override

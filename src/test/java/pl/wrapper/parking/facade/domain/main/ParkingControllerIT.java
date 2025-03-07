@@ -1,6 +1,14 @@
 package pl.wrapper.parking.facade.domain.main;
 
+import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +24,6 @@ import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 import reactor.core.publisher.Flux;
-
-import java.util.Collections;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.is;
-import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -43,7 +42,6 @@ public class ParkingControllerIT {
 
     @MockBean
     private ParkingHistoricDataService parkingHistoricDataService;
-
 
     private List<ParkingResponse> parkings;
 
@@ -117,9 +115,7 @@ public class ParkingControllerIT {
     public void getParkingBySymbol_returnFoundParking() throws Exception {
         when(pwrApiServerCaller.fetchParkingData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/symbol")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .queryParam("symbol", "P1"))
+        mockMvc.perform(get("/symbol").accept(MediaType.APPLICATION_JSON).queryParam("symbol", "P1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.parkingId", is(1)))
                 .andExpect(jsonPath("$.name", is("Parking 1")))
@@ -131,9 +127,7 @@ public class ParkingControllerIT {
     public void getParkingByName_returnNoParkings() throws Exception {
         when(pwrApiServerCaller.fetchParkingData()).thenReturn(parkings);
 
-        mockMvc.perform(get("/name")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .queryParam("name", "Non-existent name"))
+        mockMvc.perform(get("/name").accept(MediaType.APPLICATION_JSON).queryParam("name", "Non-existent name"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.errorMessage", anything()));
     }

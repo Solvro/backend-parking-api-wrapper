@@ -1,12 +1,12 @@
 package pl.wrapper.parking.pwrResponseHandler.domain;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import reactor.core.publisher.Mono;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class PwrApiCallerTest {
     @Test

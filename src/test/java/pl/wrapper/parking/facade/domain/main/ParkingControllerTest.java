@@ -1,5 +1,17 @@
 package pl.wrapper.parking.facade.domain.main;
 
+import static org.hamcrest.CoreMatchers.anything;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.time.LocalTime;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,19 +31,6 @@ import pl.wrapper.parking.infrastructure.error.Result;
 import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
 import pl.wrapper.parking.pwrResponseHandler.dto.Address;
 import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
-import java.time.LocalTime;
-import java.util.List;
-
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ParkingController.class)
 @ComponentScan({"pl.wrapper.parking.infrastructure", "pl.wrapper.parking.facade.main"})
@@ -249,18 +248,18 @@ public class ParkingControllerTest {
 
     @Test
     void getById_ShouldReturnError() throws Exception {
-        int incorrectId = parkingData.getLast().parkingId()+100;
-        when(parkingService.getById(incorrectId, null)).thenReturn(Result.failure(new ParkingError.ParkingNotFoundById(incorrectId)));
-        mockMvc.perform(get("/id").param("id", String.valueOf(incorrectId)))
-                .andExpect(status().isNotFound());
+        int incorrectId = parkingData.getLast().parkingId() + 100;
+        when(parkingService.getById(incorrectId, null))
+                .thenReturn(Result.failure(new ParkingError.ParkingNotFoundById(incorrectId)));
+        mockMvc.perform(get("/id").param("id", String.valueOf(incorrectId))).andExpect(status().isNotFound());
     }
 
     @Test
     void anyEndpoint_shouldParseCorrectly() throws Exception {
         ParkingResponse parkingResponse = parkingData.getFirst();
-        Mockito.when(parkingService.getById(parkingResponse.parkingId(), null)).thenReturn(Result.success(parkingResponse));
-        MvcResult mvcResult = mockMvc.perform(get("/id")
-                        .param("id", String.valueOf(parkingResponse.parkingId())))
+        Mockito.when(parkingService.getById(parkingResponse.parkingId(), null))
+                .thenReturn(Result.success(parkingResponse));
+        MvcResult mvcResult = mockMvc.perform(get("/id").param("id", String.valueOf(parkingResponse.parkingId())))
                 .andReturn();
         Integer status = mvcResult.getResponse().getStatus();
         assertEquals(HttpStatus.OK.value(), status);

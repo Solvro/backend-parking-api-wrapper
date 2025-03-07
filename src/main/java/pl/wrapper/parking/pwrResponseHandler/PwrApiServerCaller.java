@@ -1,10 +1,10 @@
 package pl.wrapper.parking.pwrResponseHandler;
 
-import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
 import java.util.List;
+import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 public interface PwrApiServerCaller {
     List<ParkingResponse> fetchParkingData();
+
     List<Object> getAllCharsForToday();
 }

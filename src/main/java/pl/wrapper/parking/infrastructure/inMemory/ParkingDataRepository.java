@@ -1,23 +1,21 @@
 package pl.wrapper.parking.infrastructure.inMemory;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-import pl.wrapper.parking.infrastructure.inMemory.dto.AvailabilityData;
-import pl.wrapper.parking.infrastructure.inMemory.dto.ParkingData;
-import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
-import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
-import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
-
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.AvailabilityData;
+import pl.wrapper.parking.infrastructure.inMemory.dto.parking.ParkingData;
+import pl.wrapper.parking.infrastructure.util.DateTimeUtils;
+import pl.wrapper.parking.pwrResponseHandler.PwrApiServerCaller;
+import pl.wrapper.parking.pwrResponseHandler.dto.ParkingResponse;
 
 @Component("parkingDataRepository")
 @Slf4j
@@ -33,10 +31,6 @@ public class ParkingDataRepository extends InMemoryRepositoryImpl<Integer, Parki
             PwrApiServerCaller pwrApiServerCaller) {
         super(saveToLocationPath, new HashMap<>(), null);
         this.pwrApiServerCaller = pwrApiServerCaller;
-    }
-
-    public Collection<ParkingData> values() {
-        return dataMap.values();
     }
 
     @Scheduled(fixedRateString = "${pwr-api.data-fetch.minutes}", timeUnit = TimeUnit.MINUTES)
