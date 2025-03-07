@@ -5,8 +5,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
+@AllArgsConstructor
 @Getter
 public class EndpointData implements Serializable {
     private long successCount;
